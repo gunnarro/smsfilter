@@ -1,7 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, SmsfilterActivity!</string>
-    <string name="app_name">Smsfilter</string>
+    <string name="na">na</string>
+    <string name="app_name">SMS Filter</string>
+    <string name="log_title">Blocked SMS log</string>
+    <string name="whitelist_title">WhiteList</string>
+    <string name="blacklist_title">BlackList</string>
+    <string name="setup_title">Setup</string>
+    <string name="setup_header">From here you can activate/deactivate actual SMS filter:</string>
+    <string name="add_item">Add</string>
+    <string name="close">Close</string>
+    <string name="del_selected_items">Delete selected items</string>
+    <string name="sms_statistic">SMS</string>
+    <string name="spinner_view_by">View by</string>
+    <string name="spinner_sort_by">Sort by</string>
+    <string name="radio_allow_all">Allow all</string>
+    <string name="radio_blacklist">Reject sms from phone number listed in blacklist</string>
+    <string name="radio_whitelist">Allow sms from phone number listed in whitelist only</string>
+    <string name="radio_contacts">Allow sms from contacts only</string>
+
+    <string name="spinner_select_sms_statistic_options">View pr.</string>
+
+    <string-array name="sms_view_by_options">
+        <item>Year</item>
+		<item>Month</item>
+		<item>Week</item>
+		<item>Day</item>
+		<item>Number</item>
+    </string-array>
+    
+    <string-array name="sms_sort_by_options">
+        <item>Periode</item>
+        <item>Number</item>
+    </string-array>
+
+    <string name="spinner_sms_filter_by">Filter sms by</string>
+
+    <string-array name="spinner_sms_filter_options">
+        <item>Allow all</item>
+        <item>Contacts</item>
+        <item>BlackList</item>
+        <item>WhiteList</item>
+    </string-array>
 
 </resources>
