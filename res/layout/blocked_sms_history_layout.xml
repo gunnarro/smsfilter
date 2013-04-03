@@ -9,7 +9,7 @@
     android:gravity="top"
     android:orientation="vertical" >
 
-     <EditText
+    <EditText
         android:id="@+id/blocked_sms_list_input_field"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
@@ -17,29 +17,29 @@
         android:inputType="text"
         android:singleLine="true" >
     </EditText>
-    
-     <ImageButton
+
+    <ImageButton
         android:id="@+id/blocked_log_refresh_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/blocked_sms_list_input_field"
         android:contentDescription="@string/na"
         android:src="@drawable/table_refresh" />
-     
-      <ImageButton
+
+    <ImageButton
         android:id="@+id/blocked_log_del_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/blocked_log_refresh_btn"
         android:contentDescription="@string/na"
         android:src="@drawable/table_row_delete" />
-     
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:choiceMode="multipleChoice"
-        android:layout_below="@+id/blocked_log_refresh_btn" >
+        android:layout_below="@+id/blocked_log_refresh_btn"
+        android:choiceMode="multipleChoice" >
     </ListView>
 
 </RelativeLayout>

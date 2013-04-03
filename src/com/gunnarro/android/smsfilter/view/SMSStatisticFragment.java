@@ -7,14 +7,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -24,47 +25,49 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.gunnarro.android.smsfilter.AppConstants;
 import com.gunnarro.android.smsfilter.AppPreferences;
 import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
 import com.gunnarro.android.smsfilter.R;
-import com.gunnarro.android.smsfilter.sms.SMS;
+import com.gunnarro.android.smsfilter.domain.SMS;
 
-/**
- * Call which reads and holds statistic for blocked sms's.
- * 
- * @author gunnarro
- * 
- */
-public class SMSStatisticActivity extends Activity implements OnClickListener {
+public class SMSStatisticFragment extends Fragment implements OnClickListener {
 
     protected AppPreferences appPreferences;
     private String viewBy = "Year";
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
-    /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Load the main.xml layout file.
-        setContentView(R.layout.sms_statistic_layout);
-        ImageButton refreshButton = (ImageButton) findViewById(R.id.refresh_statistic_btn);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        if (container == null) {
+            return null;
+        }
+        View view = inflater.inflate(R.layout.sms_statistic_layout, container, false);
+        ImageButton refreshButton = (ImageButton) view.findViewById(R.id.refresh_statistic_btn);
         refreshButton.setOnClickListener(this);
 
-        Spinner viewBySpinner = (Spinner) findViewById(R.id.view_by_spinner);
-        ArrayAdapter<CharSequence> viewByAdapter = ArrayAdapter.createFromResource(this, R.array.sms_view_by_options, android.R.layout.simple_spinner_item);
+        Spinner viewBySpinner = (Spinner) view.findViewById(R.id.view_by_spinner);
+        ArrayAdapter<CharSequence> viewByAdapter = ArrayAdapter.createFromResource(view.getContext(), R.array.sms_view_by_options,
+                android.R.layout.simple_spinner_item);
         viewByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         viewBySpinner.setAdapter(viewByAdapter);
         viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener());
 
-        this.appPreferences = new ListAppPreferencesImpl(this);
+        this.appPreferences = new ListAppPreferencesImpl(view.getContext());
+        return view;
+    }
+
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
         case R.id.refresh_statistic_btn:
-            updateSMSStatistic();
+            updateSMSStatistic(view);
             break;
         case R.id.delete_statistic_btn:
             clearBlockedSMSlog();
@@ -72,8 +75,11 @@ public class SMSStatisticActivity extends Activity implements OnClickListener {
         }
     }
 
-    private void clearStatistic() {
-        TableLayout table = (TableLayout) findViewById(R.id.tableLayout1);
+    private void clearStatistic(View view) {
+        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout1);
+        if (table == null) {
+            return;
+        }
         Log.i("clearStatistic", "...child: " + table.getChildCount());
         if (table.getChildCount() > 3) {
             table.removeViews(3, table.getChildCount() - 3);
@@ -85,11 +91,11 @@ public class SMSStatisticActivity extends Activity implements OnClickListener {
         appPreferences.removeAllList(AppPreferences.SMS_BLOCKED_LOG);
     }
 
-    private void updateSMSStatistic() {
-        TableLayout table = (TableLayout) findViewById(R.id.tableLayout1);
+    private void updateSMSStatistic(View view) {
+        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout1);
         // Remove all rows before updating the table, except for the table
         // header rows.
-        clearStatistic();
+        clearStatistic(view);
         List<SMS> blockedSMSList = appPreferences.getSMSList(viewBy);
         Collections.sort(blockedSMSList, new Comparator<SMS>() {
             public int compare(SMS sms1, SMS sms2) {
@@ -100,48 +106,48 @@ public class SMSStatisticActivity extends Activity implements OnClickListener {
         Date startDate = Calendar.getInstance().getTime();
         Date endDate = startDate;
 
-        SMS summarySMS = new SMS("Total", 0);
-        summarySMS.setKey("Total");
+        SMS summarySMS = new SMS(getResources().getString(R.string.tbl_blocked_total), 0);
+        summarySMS.setKey(getResources().getString(R.string.tbl_blocked_total));
         for (SMS sms : blockedSMSList) {
             startDate = startDate.before(new Date(sms.getTimeMilliSecound())) ? startDate : new Date(sms.getTimeMilliSecound());
             endDate = endDate.after(new Date(sms.getTimeMilliSecound())) ? endDate : new Date(sms.getTimeMilliSecound());
             summarySMS.increaseNumberOfBlocked(sms.getNumberOfBlocked());
-            table.addView(createTableRow(sms, table.getChildCount()));
+            table.addView(createTableRow(view, sms, table.getChildCount()));
         }
 
         formatter.applyPattern("dd.MM.yyyy");
         String periode = formatter.format(startDate) + " - " + formatter.format(endDate);
-        TextView tableHeaderTxt = (TextView) findViewById(R.id.tableHeaderTxt);
-        tableHeaderTxt.setText("Periode: " + periode);
+        TextView tableHeaderTxt = (TextView) view.findViewById(R.id.tableHeaderTxt);
+        tableHeaderTxt.setText(getResources().getString(R.string.tbl_blocked_periode) + ": " + periode);
         tableHeaderTxt.setTextColor(Color.WHITE);
         // Add row with totals at the end of the table
-        TableRow row = new TableRow(this);
-        row.setBackgroundColor(Color.BLACK);
-        row.setPadding(1, 1, 1, 1);
-        row.setMinimumHeight(2);
+        TableRow row = new TableRow(view.getContext());
+        // row.setBackgroundColor(getResources().getColor(R.color.tbl_background));
+        // row.setPadding(1, 1, 1, 1);
+        // row.setMinimumHeight(2);
         table.addView(row);
-        table.addView(createTableRow(summarySMS, 1));
+        table.addView(createTableRow(view, summarySMS, 1));
     }
 
-    private TableRow createTableRow(SMS sms, int rowNumber) {
-        TableRow row = new TableRow(this);
-        int bgColor = Color.WHITE;
+    private TableRow createTableRow(View view, SMS sms, int rowNumber) {
+        TableRow row = new TableRow(view.getContext());
+        int bgColor = R.color.tbl_row_even;
         if (rowNumber % 2 == 0) {
-            bgColor = Color.LTGRAY;
+            bgColor = R.color.tbl_row_odd;
         }
-        row.addView(createTextView(sms.getKey(), bgColor, Color.BLACK, Gravity.CENTER));
-        row.addView(createTextView(Integer.toString(sms.getNumberOfBlocked()), bgColor, Color.parseColor(AppConstants.NAVY_HEX), Gravity.RIGHT));
-        row.setBackgroundColor(bgColor);
-        row.setPadding(1, 1, 1, 1);
+        row.addView(createTextView(view, sms.getKey(), bgColor, R.color.tbl_background, Gravity.CENTER));
+        row.addView(createTextView(view, Integer.toString(sms.getNumberOfBlocked()), bgColor, R.color.navy, Gravity.RIGHT));
+        // row.setBackgroundColor(bgColor);
+        // row.setPadding(1, 1, 1, 1);
         return row;
     }
 
-    private TextView createTextView(String value, int bgColor, int txtColor, int gravity) {
-        TextView txtView = new TextView(this);
+    private TextView createTextView(View view, String value, int bgColor, int txtColor, int gravity) {
+        TextView txtView = new TextView(view.getContext());
         txtView.setText(value);
-        txtView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        txtView.setTextSize(12);
-        txtView.setLineSpacing(1, 1);
+        // txtView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
+        // txtView.setTextSize(12);
+        // txtView.setLineSpacing(1, 1);
         txtView.setGravity(gravity);
         txtView.setBackgroundColor(bgColor);
         txtView.setTextColor(txtColor);
@@ -159,5 +165,4 @@ public class SMSStatisticActivity extends Activity implements OnClickListener {
             // Do nothing.
         }
     }
-
 }

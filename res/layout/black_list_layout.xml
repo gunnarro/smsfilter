@@ -35,7 +35,7 @@
         android:layout_toRightOf="@+id/black_list_add_btn"
         android:contentDescription="@string/na"
         android:src="@drawable/table_delete" />
-    
+
     <ImageButton
         android:id="@+id/black_list_refresh_btn"
         android:layout_width="wrap_content"
@@ -49,7 +49,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/black_list_input_field"
-        android:choiceMode="multipleChoice" >
+        android:choiceMode="multipleChoice"
+        android:textColor="#aabbddcc" >
     </ListView>
 
 </RelativeLayout>

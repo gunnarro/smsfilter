@@ -2,12 +2,13 @@ package com.gunnarro.android.smsfilter;
 
 import java.util.List;
 
-import com.gunnarro.android.smsfilter.sms.SMS;
-import com.gunnarro.android.smsfilter.view.Item;
+import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.domain.SMS;
 
 public interface AppPreferences {
 
     /** Holds current selected filter type */
+    public static final String SMS_FILTER_ACTIVATED = "sms_filter_activated";
     public static final String SMS_FILTER_TYPE = "sms_filter_type";
     public static final String SMS_BLACK_LIST = "sms_black_list";
     public static final String SMS_WHITE_LIST = "sms_white_list";
@@ -18,6 +19,11 @@ public interface AppPreferences {
     public static final String SEPARATOR = ";";
 
     /**
+     * Returns the list of item for the given list type.
+     * Allowed list types are as follows:
+     * <li>SMS_BLACK_LIST</li>
+     * <li>SMS_WHITE_LIST</li>
+     * <li>SMS_BLOCKED_LOG</li>
      * 
      * @param type
      * @return
@@ -25,14 +31,14 @@ public interface AppPreferences {
     public abstract List<Item> getList(String type);
 
     /**
-     * 
+     * return the list items as a string, ref. getList(String type)
      * @param type
      * @return
      */
     public abstract String getListAsString(String type);
 
     /**
-     * Generic method remove all items from the list type.
+     * Method remove all items from the list type.
      * 
      * @param type list type which holds the items.
      * @return true if all items was successfully removed, false otherwise.
@@ -40,7 +46,7 @@ public interface AppPreferences {
     public abstract boolean removeAllList(String type);
 
     /**
-     * Generic method to update a item in the given list type.
+     * Method to update a item in the given list type.
      * 
      * @param type list type which holds the item.
      * @param item item to update
@@ -49,7 +55,7 @@ public interface AppPreferences {
     public abstract boolean updateList(String type, Item item);
 
     /**
-     * Generic method to remove a item from the given list type.
+     * Method to remove a item from the given list type.
      * 
      * @param type list type which holds the item.
      * @param item item to remove
@@ -58,21 +64,21 @@ public interface AppPreferences {
     public abstract boolean removeList(String type, Item item);
 
     /**
-     * Generic method the check if the given list type contains a item.
+     * Method to search for a given value in a list.
      * 
      * @param type list type which holds the item.
-     * @param value item to check
+     * @param value value to search after
      * @return true if the list contains the item, false otherwise.
      */
-    public abstract boolean listContains(String type, String value);
+    public abstract Item searchList(String type, String value);
 
     /**
-     * Generic method to save a item to a resource type.
+     * Method to save a item to a resource type.
      * 
      * @param type
      * @param value
      */
-    public void save(String type, Item value);
+    public void save(String type, String value);
 
     /**
      * Method to read a single vale from a resourceF.
@@ -89,4 +95,10 @@ public interface AppPreferences {
      */
     public List<SMS> getSMSList(String groupBy);
 
+    /**
+     * Method to check if the sms filter is activated or not
+     * 
+     * @return true if activated, alse otherwise
+     */
+    public boolean isFilterActivated();
 }

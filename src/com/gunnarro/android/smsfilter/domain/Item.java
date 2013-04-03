@@ -1,5 +1,11 @@
-package com.gunnarro.android.smsfilter.view;
+package com.gunnarro.android.smsfilter.domain;
 
+/**
+ * Class for holding list items.
+ * 
+ * @author gunnarro
+ * 
+ */
 public class Item {
 
     private String value;

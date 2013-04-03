@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.gunnarro.android.smsfilter.AppPreferences;
 import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
-import com.gunnarro.android.smsfilter.view.Item;
+import com.gunnarro.android.smsfilter.domain.Item;
 
 public class SMSFilter {
 
@@ -52,6 +52,15 @@ public class SMSFilter {
     }
 
     /**
+     * Tells whether the sms filter is activated or not.
+     * 
+     * @return true id activated, false otherwise
+     */
+    public boolean isActivated() {
+        return appPreferences.isFilterActivated();
+    }
+
+    /**
      * Method to check if the phone number is blocked or not. If that's the
      * case, the SMS is ignored and only logged to the SMSFilters blocked log.
      * Otherwise, the SMS is handled as normal.
@@ -62,9 +71,8 @@ public class SMSFilter {
     public boolean isBlocked(String phoneNumber) {
         boolean isBlocked = false;
         FilterTypeEnum activeFilterType = getActiveFilterType();
-        Log.d(this.getClass().getSimpleName(), "filter type: " + activeFilterType);
         if (activeFilterType == null) {
-            Log.e(this.getClass().getSimpleName(), "BUG: filter type not found, do not block sms!");
+            Log.e(this.getClass().getSimpleName(), "isBlocked(): BUG: filter type not found, do not block sms!");
             return false;
         }
 
@@ -75,18 +83,20 @@ public class SMSFilter {
             // Check contact list
             isBlocked = false;
         } else if (activeFilterType.isBlackList()) {
-            if (appPreferences.listContains(activeFilterType.filterType, phoneNumber)) {
+            Item item = appPreferences.searchList(activeFilterType.filterType, phoneNumber);
+            if (item != null && item.isEnabled()) {
                 isBlocked = true;
             }
         } else if (activeFilterType.isWhiteList()) {
-            if (!appPreferences.listContains(activeFilterType.filterType, phoneNumber)) {
+            Item item = appPreferences.searchList(activeFilterType.filterType, phoneNumber);
+            if (item == null || (item != null && !item.isEnabled())) {
                 isBlocked = true;
             }
         }
         if (isBlocked) {
             logBlockedSMS(phoneNumber);
         }
-        Log.d(this.getClass().getSimpleName(), "No match: " + activeFilterType);
+        Log.d(this.getClass().getSimpleName(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
         return isBlocked;
     }
 
@@ -119,5 +129,4 @@ public class SMSFilter {
     public void setAppPreferences(AppPreferences appPreferences) {
         this.appPreferences = appPreferences;
     }
-
 }

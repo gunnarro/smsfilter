@@ -1,4 +1,4 @@
-package com.gunnarro.android.smsfilter.sms;
+package com.gunnarro.android.smsfilter.domain;
 
 public class SMS {
 

@@ -4,33 +4,37 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="15" />
+    <uses-sdk
+        android:maxSdkVersion="17"
+        android:minSdkVersion="15"
+        android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.READ_SMS" />
-	<uses-permission android:name="android.permission.RECEIVE_SMS" />
-	<uses-permission android:name="android.permission.BROADCAST_SMS"/>
-	<uses-permission android:name="android.permission.READ_LOGS" />
-	
-    <application android:icon="@drawable/black_list_agent" android:label="@string/app_name" android:theme="@style/MyCustomTheme">
-		
-		<activity android:name="com.gunnarro.android.smsfilter.view.ApplicationTabWidget" android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
-		
-		<activity android:name="com.gunnarro.android.smsfilter.view.SetupActivity" android:label="@string/setup_title" />
-		<activity android:name="com.gunnarro.android.smsfilter.view.WhiteListConfigurationActivity" android:label="@string/blacklist_title" />
-		<activity android:name="com.gunnarro.android.smsfilter.view.BlackListConfigurationActivity" android:label="@string/whitelist_title" />
-		<activity android:name="com.gunnarro.android.smsfilter.view.SMSStatisticActivity" android:label="@string/log_title" />
-		
-		<receiver android:name="com.gunnarro.android.smsfilter.sms.SMSHandler" android:enabled="true">
-			<intent-filter android:priority="2147483647">
-				<action android:name="android.provider.Telephony.SMS_RECEIVED" />
-			</intent-filter>
-		</receiver>
-		
-	</application>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- <uses-permission android:name="android.permission.BROADCAST_SMS"/> -->
+    <uses-permission android:name="android.permission.READ_LOGS" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/black_list_agent"
+        android:label="@string/app_name"
+        android:theme="@style/MyCustomTheme" >
+        <activity
+            android:name="com.gunnarro.android.smsfilter.view.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name="com.gunnarro.android.smsfilter.receiver.SMSHandler"
+            android:enabled="true" >
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+    </application>
 
 </manifest>

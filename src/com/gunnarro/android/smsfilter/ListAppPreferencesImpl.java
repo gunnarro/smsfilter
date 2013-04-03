@@ -10,10 +10,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
-import com.gunnarro.android.smsfilter.sms.SMS;
-import com.gunnarro.android.smsfilter.view.Item;
+import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.domain.SMS;
 
 /**
  * Class to store and read values from the android shared preferences.
@@ -55,7 +55,7 @@ public class ListAppPreferencesImpl implements AppPreferences {
         String storedValues = getListAsString(type);
         if (storedValues != null && storedValues.length() > 1) {
             for (String valuePair : storedValues.split(SEPARATOR)) {
-                Log.i(this.getClass().getSimpleName(), "getList parse: type=" + type + ", value=" + valuePair);
+                CustomLog.i(this.getClass(), "type=" + type + ", value=" + valuePair);
                 Item item = Item.createItem(valuePair);
                 if (item != null) {
                     list.add(item);
@@ -75,7 +75,7 @@ public class ListAppPreferencesImpl implements AppPreferences {
         if (list != null && list.length() > 1) {
             for (String blocked : list.split(AppPreferences.SEPARATOR)) {
                 String[] split = blocked.split(":");
-                SMS blockedSMS = new SMS(new Long(split[0]).longValue(), split[1]);
+                SMS blockedSMS = new SMS(Long.valueOf(split[0]).longValue(), split[1]);
                 blockedSMS.increaseNumberOfBlocked();
                 String key = null;
                 String format = "yyyy.MM.dd hh:mm:ss";
@@ -124,7 +124,7 @@ public class ListAppPreferencesImpl implements AppPreferences {
     public boolean removeAllList(String type) {
         prefsEditor.putString(type, DEFAULT_VALUE);
         boolean removed = prefsEditor.commit();
-        Log.i(this.getClass().getSimpleName(), "removeAllList: type=" + type + ", removed all=" + removed);
+        CustomLog.i(this.getClass(), "type=" + type + ", removed all=" + removed);
         return removed;
     }
 
@@ -141,7 +141,7 @@ public class ListAppPreferencesImpl implements AppPreferences {
         }
         prefsEditor.putString(type, listStr.toString());
         boolean updated = prefsEditor.commit();
-        Log.i(this.getClass().getSimpleName(), "updateList: type=" + type + ", value=" + item.toValuePair() + ", updated=" + updated);
+        CustomLog.i(this.getClass(), "type=" + type + ", value=" + item.toValuePair() + ", updated=" + updated);
         return updated;
     }
 
@@ -170,7 +170,7 @@ public class ListAppPreferencesImpl implements AppPreferences {
             prefsEditor.putString(type, valuePairs.toString());
             prefsEditor.commit();
         }
-        Log.i(this.getClass().getSimpleName(), "removeList: type=" + type + ", value=" + item.toValuePair() + ", removed=" + removed);
+        CustomLog.i(this.getClass(), "type=" + type + ", value=" + item.toValuePair() + ", removed=" + removed);
         return removed;
     }
 
@@ -178,25 +178,25 @@ public class ListAppPreferencesImpl implements AppPreferences {
      * {@inheritDoc}
      */
     @Override
-    public boolean listContains(String type, String value) {
-        String filter = createSearch(value);
-        Log.i(this.getClass().getSimpleName(), "SMS filter: " + filter);
+    public Item searchList(String type, String value) {
         for (Item item : getList(type)) {
-            if (item.getValue().matches(filter)) {
-                return true;
+            String filter = createSearch(item.getValue());
+            if (value.matches(filter)) {
+                CustomLog.i(this.getClass(), "HIT value=" + value + ", filter=" + filter);
+                return item;
             }
         }
-        return false;
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void save(String type, Item item) {
-        prefsEditor.putString(type, item.toValuePair());
+    public void save(String type, String value) {
+        prefsEditor.putString(type, value);
         boolean saved = prefsEditor.commit();
-        Log.i(this.getClass().getSimpleName(), "save: type=" + type + ", value=" + item.toValuePair() + ", saved=" + saved);
+        CustomLog.i(this.getClass(), "type=" + type + ", value=" + value + ", saved=" + saved);
     }
 
     /**
@@ -207,8 +207,34 @@ public class ListAppPreferencesImpl implements AppPreferences {
         return appSharedPrefs.getString(type, DEFAULT_VALUE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isFilterActivated() {
+        String isActivated = getValue(AppPreferences.SMS_FILTER_ACTIVATED);
+        if (!isActivated.equalsIgnoreCase(Boolean.TRUE.toString()) && !isActivated.equalsIgnoreCase(Boolean.FALSE.toString())) {
+            // activated not set, default it to false, and save it.
+            isActivated = Boolean.FALSE.toString();
+            save(AppPreferences.SMS_FILTER_ACTIVATED, isActivated);
+        }
+        return Boolean.parseBoolean(isActivated);
+    }
+
+    /**
+     * For unit testing only. Used to mock the service.
+     * 
+     */
     public void setAppSharedPrefs(SharedPreferences appSharedPrefs) {
         this.appSharedPrefs = appSharedPrefs;
+    }
+
+    /**
+     * For unit testing only. Used to mock the service.
+     * 
+     */
+    public void setPrefsEditor(Editor prefsEditor) {
+        this.prefsEditor = prefsEditor;
     }
 
 }

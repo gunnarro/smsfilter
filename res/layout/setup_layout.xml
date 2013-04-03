@@ -9,16 +9,22 @@
     android:gravity="top"
     android:orientation="vertical" >
 
+    <Switch
+        android:id="@+id/sms_filter_on_off_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/turn_sms_filter_on_off_txt"
+        android:textOff="OFF"
+        android:textOn="ON" />
+
     <TextView
         android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/sms_filter_on_off_switch"
         android:gravity="left"
-        android:text="@string/setup_header"
-        android:textColor="#ffffff"
-        android:textSize="14dp"
-        android:textStyle="bold"
-        android:typeface="serif" />
+        android:text="@string/setup_header" />
 
     <RadioGroup
         android:id="@+id/radio_filter"
@@ -50,7 +56,8 @@
             android:layout_height="wrap_content"
             android:text="@string/radio_blacklist" />
     </RadioGroup>
-    <!-- 
+
+    <!--
      <Button
         android:id="@+id/close_btn"
         android:layout_width="wrap_content"
@@ -58,5 +65,6 @@
         android:layout_below="@+id/radio_filter"
         android:contentDescription="@string/na"
         android:text="@string/close"/>
-	 -->
+    -->
+
 </RelativeLayout>

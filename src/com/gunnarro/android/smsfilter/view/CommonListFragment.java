@@ -2,7 +2,7 @@ package com.gunnarro.android.smsfilter.view;
 
 import java.util.List;
 
-import android.app.ListActivity;
+import android.app.ListFragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -13,22 +13,25 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.gunnarro.android.smsfilter.AppPreferences;
+import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.Item;
 
-public class ListConfigurationActivity extends ListActivity {
+public class CommonListFragment extends ListFragment {
 
     protected AppPreferences appPreferences;
+
+    /** Declaring an ArrayAdapter to set items to ListView */
+    protected ArrayAdapter<Item> adapter;
+
+    /** Items entered by the user is stored in this ArrayList variable */
+    private List<Item> localList;
+
     private String type;
 
     private int addBtnId;
     private int delBtnId;
     private int refreshBtnId;
     private int inputFieldId;
-
-    /** Items entered by the user is stored in this ArrayList variable */
-    private List<Item> localList;
-
-    /** Declaring an ArrayAdapter to set items to ListView */
-    protected ArrayAdapter<Item> adapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -38,60 +41,61 @@ public class ListConfigurationActivity extends ListActivity {
 
     /**
      * {@inheritDoc}
-     * */
+     */
     @Override
-    protected void onListItemClick(ListView l, View v, int pos, long id) {
+    public void onListItemClick(ListView l, View v, int pos, long id) {
         super.onListItemClick(l, v, pos, id);
         Item item = localList.get(pos);
         SparseBooleanArray checkedItemPositions = getListView().getCheckedItemPositions();
+        boolean checked = false;
         if (checkedItemPositions.get(pos)) {
-            item.setEnabled(true);
-        } else {
-            item.setEnabled(false);
+            checked = true;
         }
-
-        // Log.d(this.getClass().getSimpleName(), pos + " - " + id);
-        // Object o = getListView().getItemAtPosition(pos);
-        // Log.d(this.getClass().getSimpleName(), "obj.    " + o.toString());
-        // Log.d(this.getClass().getSimpleName(), "local:" +
-        // item.toValuePair());
-        // // getListView().setItemChecked(pos, item.isEnabled());
-        // Item item2 = adapter.getItem(pos);
-        // Log.d(this.getClass().getSimpleName(), "adapter: " +
-        // item.toValuePair());
+        item.setEnabled(checked);
+        appPreferences.updateList(type, item);
         Log.d(this.getClass().getSimpleName(), "local:" + item.toValuePair());
-        adapter.notifyDataSetChanged();
+        reloadDataSet();
+    }
+
+    protected void initListView() {
+        // Have to init. the check boxes upon loading
+        for (int position = 0; position < adapter.getCount(); position++) {
+            super.getListView().setItemChecked(position, adapter.getItem(position).isEnabled());
+            CustomLog.d(this.getClass(), "smsitem: " + adapter.getItem(position).toValuePair());
+        }
     }
 
     protected void setAppPreferences(AppPreferences appPreferences) {
         this.appPreferences = appPreferences;
+        // Fist of all, we must load the saved local list.
         this.localList = appPreferences.getList(type);
     }
 
-    protected void setupEventHandlers() {
-        /** Defining the ArrayAdapter to set items to ListView */
-        adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_multiple_choice, localList);
-        // adapter.setNotifyOnChange(true);
-        /** Setting the adapter to the ListView */
-        setListAdapter(adapter);
+    protected void setupEventHandlers(final View view) {
+        // Defining the ArrayAdapter to set items to ListView
+        adapter = new ArrayAdapter<Item>(getActivity(), android.R.layout.simple_list_item_multiple_choice, localList);
+        // Setting the adapter to the ListView
+        super.setListAdapter(adapter);
 
-        findViewById(addBtnId).setOnClickListener(new OnClickListener() {
+        view.findViewById(addBtnId).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText inputField = (EditText) findViewById(inputFieldId);
+                EditText inputField = (EditText) view.findViewById(inputFieldId);
                 String value = inputField.getText().toString();
                 if (!value.isEmpty()) {
                     Item newItem = new Item(value, false);
                     if (addLocalList(newItem)) {
-                        adapter.notifyDataSetChanged();
+                        reloadDataSet();
+                        // Save the newly added item
                         appPreferences.updateList(type, newItem);
                     }
+                    // Clear the input text field after every list insertion
                     inputField.setText("");
                 }
             }
         });
 
-        findViewById(delBtnId).setOnClickListener(new OnClickListener() {
+        view.findViewById(delBtnId).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Getting the checked items from the list view
@@ -104,19 +108,19 @@ public class ListConfigurationActivity extends ListActivity {
                         appPreferences.removeList(type, item);
                     }
                 }
-                adapter.notifyDataSetChanged();
+                reloadDataSet();
             }
         });
 
-        findViewById(refreshBtnId).setOnClickListener(new OnClickListener() {
+        view.findViewById(refreshBtnId).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                reload();
+                reloadDataSet();
             }
         });
     }
 
-    private void reload() {
+    private void reloadDataSet() {
         adapter.notifyDataSetChanged();
     }
 

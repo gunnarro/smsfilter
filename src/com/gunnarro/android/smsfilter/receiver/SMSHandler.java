@@ -1,15 +1,13 @@
-package com.gunnarro.android.smsfilter.sms;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+package com.gunnarro.android.smsfilter.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
+
+import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.sms.SMSFilter;
 
 public class SMSHandler extends BroadcastReceiver {
 
@@ -26,18 +24,22 @@ public class SMSHandler extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
-        Log.i(createLogTag(this.getClass()), "Handle incomming sms...");
+        CustomLog.i(this.getClass(), "Handle incomming sms...");
         if (bundle != null) {
             if (intent.getAction().equals(SMS_RECEIVED)) {
                 handleSMS(context, bundle);
             } else {
-                Log.i(createLogTag(this.getClass()), "This was not an sms: " + intent.getAction());
+                CustomLog.i(this.getClass(), "This was not an sms: " + intent.getAction());
             }
         }
     }
 
     private void handleSMS(Context context, Bundle bundle) {
         SMSFilter smsFilter = new SMSFilter(context);
+        if (!smsFilter.isActivated()) {
+            CustomLog.i(this.getClass(), "SMS filter not activated!");
+            return;
+        }
         Object[] pdus = (Object[]) bundle.get("pdus");
         SmsMessage[] msgs = new SmsMessage[pdus.length];
         for (int i = 0; i < msgs.length; i++) {
@@ -47,12 +49,8 @@ public class SMSHandler extends BroadcastReceiver {
                     super.abortBroadcast();
                 }
             } catch (Exception e) {
-                Log.e(createLogTag(this.getClass()), e.getMessage(), e);
+                CustomLog.e(this.getClass(), e.getMessage());
             }
         }
-    }
-
-    public static String createLogTag(Class<?> clazz) {
-        return DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.ENGLISH).format(new Date()) + " " + clazz.getSimpleName();
     }
 }
