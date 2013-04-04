@@ -22,21 +22,21 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_container);
+        setContentView(R.layout.main);
         appContext = getApplicationContext();
 
         // ActionBar
         ActionBar actionbar = getActionBar();
         actionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        actionbar.addTab(actionbar.newTab().setText(R.string.tab_setup).setTabListener(new MyTabsListener<Fragment>(new SetupFragment()))
-                .setIcon(R.drawable.config_tab));
-        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blacklist).setTabListener(new MyTabsListener<Fragment>(new BlackListFragment()))
-                .setIcon(R.drawable.black_list_tab));
-        actionbar.addTab(actionbar.newTab().setText(R.string.tab_whitelist).setTabListener(new MyTabsListener<Fragment>(new WhiteListFragment()))
-                .setIcon(R.drawable.white_list_tab));
-        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked).setTabListener(new MyTabsListener<Fragment>(new SMSStatisticFragment()))
-                .setIcon(R.drawable.blocked_sms_history_tab));
+        actionbar.addTab(actionbar.newTab().setText(R.string.tab_setup).setTabListener(new MyTabsListener<Fragment>(new SetupFragment())));
+        // .setIcon(R.drawable.config_tab));
+        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blacklist).setTabListener(new MyTabsListener<Fragment>(new BlackListFragment())));
+        // .setIcon(R.drawable.black_list_tab));
+        actionbar.addTab(actionbar.newTab().setText(R.string.tab_whitelist).setTabListener(new MyTabsListener<Fragment>(new WhiteListFragment())));
+        // .setIcon(R.drawable.white_list_tab));
+        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked).setTabListener(new MyTabsListener<Fragment>(new SMSStatisticFragment())));
+        // .setIcon(R.drawable.blocked_sms_history_tab));
 
         if (savedInstanceState != null) {
             actionbar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
@@ -95,8 +95,7 @@ class MyTabsListener<T extends Fragment> implements ActionBar.TabListener {
      */
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        tab.getCustomView().setEnabled(false);
-        Toast.makeText(MainActivity.appContext, "Reselected!", Toast.LENGTH_LONG).show();
+        // Toast.makeText(MainActivity.appContext, "Reselected!", Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -104,7 +103,7 @@ class MyTabsListener<T extends Fragment> implements ActionBar.TabListener {
      */
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        ft.replace(R.id.fragment_container, fragment);
+        ft.replace(R.id.main, fragment);
     }
 
     /**
