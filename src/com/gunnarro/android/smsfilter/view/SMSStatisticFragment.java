@@ -30,7 +30,7 @@ import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.domain.SMS;
 
-public class SMSStatisticFragment extends Fragment implements OnClickListener {
+public class SMSStatisticFragment extends Fragment {
 
     protected AppPreferences appPreferences;
     private String viewBy = "Year";
@@ -42,10 +42,8 @@ public class SMSStatisticFragment extends Fragment implements OnClickListener {
         if (container == null) {
             return null;
         }
-        View view = inflater.inflate(R.layout.sms_statistic_layout, container, false);
-        ImageButton refreshButton = (ImageButton) view.findViewById(R.id.refresh_statistic_btn);
-        refreshButton.setOnClickListener(this);
 
+        View view = inflater.inflate(R.layout.sms_statistic_layout, container, false);
         Spinner viewBySpinner = (Spinner) view.findViewById(R.id.view_by_spinner);
         ArrayAdapter<CharSequence> viewByAdapter = ArrayAdapter.createFromResource(view.getContext(), R.array.sms_view_by_options,
                 android.R.layout.simple_spinner_item);
@@ -54,6 +52,7 @@ public class SMSStatisticFragment extends Fragment implements OnClickListener {
         viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener());
 
         this.appPreferences = new ListAppPreferencesImpl(view.getContext());
+        setupEventHandlers(view);
         return view;
     }
 
@@ -63,16 +62,22 @@ public class SMSStatisticFragment extends Fragment implements OnClickListener {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-        case R.id.refresh_statistic_btn:
-            updateSMSStatistic(view);
-            break;
-        case R.id.delete_statistic_btn:
-            clearBlockedSMSlog();
-            break;
-        }
+    private void setupEventHandlers(final View view) {
+        ImageButton refreshButton = (ImageButton) view.findViewById(R.id.refresh_statistic_btn);
+        refreshButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                updateSMSStatistic(view);
+            }
+        });
+
+        ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_statistic_btn);
+        deleteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                clearBlockedSMSlog();
+            }
+        });
     }
 
     private void clearStatistic(View view) {
