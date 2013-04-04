@@ -24,9 +24,8 @@
     <string name="radio_whitelist">Allow sms from phone number listed in whitelist only</string>
     <string name="radio_contacts">Allow sms from contacts only</string>
     <string name="spinner_select_sms_statistic_options">View pr.</string>
-    
-     <string name="tbl_blocked_periode">Periode</string>
-     <string name="tbl_blocked_total">Total</string>
+    <string name="tbl_blocked_periode">Periode</string>
+    <string name="tbl_blocked_total">Total</string>
 
     <string-array name="sms_view_by_options">
         <item>Year</item>
@@ -56,5 +55,9 @@
     <string name="menu_feedback">Feedback</string>
     <string name="menu_about">About</string>
     <string name="menu_share">Share</string>
+
+    <!-- Switch -->
+    <string name="switch_txt_on">On</string>
+    <string name="switch_txt_off">Off</string>
 
 </resources>

@@ -15,8 +15,8 @@
         android:layout_height="wrap_content"
         android:checked="false"
         android:text="@string/turn_sms_filter_on_off_txt"
-        android:textOff="OFF"
-        android:textOn="ON" />
+        android:textOff="@string/switch_txt_off"
+        android:textOn="@string/switch_txt_on" />
 
     <TextView
         android:id="@+id/info"
@@ -56,15 +56,5 @@
             android:layout_height="wrap_content"
             android:text="@string/radio_blacklist" />
     </RadioGroup>
-
-    <!--
-     <Button
-        android:id="@+id/close_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/radio_filter"
-        android:contentDescription="@string/na"
-        android:text="@string/close"/>
-    -->
 
 </RelativeLayout>
