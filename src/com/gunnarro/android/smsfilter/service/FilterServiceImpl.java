@@ -1,4 +1,4 @@
-package com.gunnarro.android.smsfilter;
+package com.gunnarro.android.smsfilter.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Item;
@@ -21,18 +22,44 @@ import com.gunnarro.android.smsfilter.domain.SMS;
  * @author gunnarro
  * 
  */
-public class ListAppPreferencesImpl implements AppPreferences {
+public class FilterServiceImpl implements FilterService {
 
     private SharedPreferences appSharedPrefs;
     private Editor prefsEditor;
 
+    public enum FilterTypeEnum {
+        ALLOW_ALL("allowAll"), SMS_BLACK_LIST(FilterService.SMS_BLACK_LIST), SMS_WHITE_LIST(FilterService.SMS_WHITE_LIST), SMS_CONTACTS("contacts");
+
+        private String filterType;
+
+        FilterTypeEnum(String filterType) {
+            this.filterType = filterType;
+        }
+
+        public boolean isAllowAll() {
+            return this.filterType == "allowAll";
+        }
+
+        public boolean isContacts() {
+            return this.filterType == "contacts";
+        }
+
+        public boolean isWhiteList() {
+            return this.filterType == FilterService.SMS_WHITE_LIST;
+        }
+
+        public boolean isBlackList() {
+            return this.filterType == FilterService.SMS_BLACK_LIST;
+        }
+    }
+
     /**
      * Default constructor
      */
-    public ListAppPreferencesImpl() {
+    public FilterServiceImpl() {
     }
 
-    public ListAppPreferencesImpl(Context context) {
+    public FilterServiceImpl(Context context) {
         this.appSharedPrefs = context.getSharedPreferences(APP_SHARED_PREFS, Activity.MODE_PRIVATE);
         this.prefsEditor = appSharedPrefs.edit();
     }
@@ -71,9 +98,9 @@ public class ListAppPreferencesImpl implements AppPreferences {
     @Override
     public List<SMS> getSMSList(String groupBy) {
         Map<String, SMS> map = new HashMap<String, SMS>();
-        String list = getListAsString(AppPreferences.SMS_BLOCKED_LOG);
+        String list = getListAsString(FilterService.SMS_BLOCKED_LOG);
         if (list != null && list.length() > 1) {
-            for (String blocked : list.split(AppPreferences.SEPARATOR)) {
+            for (String blocked : list.split(FilterService.SEPARATOR)) {
                 String[] split = blocked.split(":");
                 SMS blockedSMS = new SMS(Long.valueOf(split[0]).longValue(), split[1]);
                 blockedSMS.increaseNumberOfBlocked();
@@ -211,14 +238,69 @@ public class ListAppPreferencesImpl implements AppPreferences {
      * {@inheritDoc}
      */
     @Override
-    public boolean isFilterActivated() {
-        String isActivated = getValue(AppPreferences.SMS_FILTER_ACTIVATED);
+    public boolean isSMSFilterActivated() {
+        String isActivated = getValue(FilterService.SMS_FILTER_ACTIVATED);
         if (!isActivated.equalsIgnoreCase(Boolean.TRUE.toString()) && !isActivated.equalsIgnoreCase(Boolean.FALSE.toString())) {
             // activated not set, default it to false, and save it.
             isActivated = Boolean.FALSE.toString();
-            save(AppPreferences.SMS_FILTER_ACTIVATED, isActivated);
+            save(FilterService.SMS_FILTER_ACTIVATED, isActivated);
         }
         return Boolean.parseBoolean(isActivated);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isBlocked(String phoneNumber) {
+        boolean isBlocked = false;
+        FilterTypeEnum activeFilterType = getActiveFilterType();
+        if (activeFilterType == null) {
+            Log.e(this.getClass().getSimpleName(), "isBlocked(): BUG: filter type not found, do not block sms!");
+            return false;
+        }
+
+        if (activeFilterType.isAllowAll()) {
+            // wide open for everyone
+            isBlocked = false;
+        } else if (activeFilterType.isContacts()) {
+            // Check contact list
+            isBlocked = false;
+        } else if (activeFilterType.isBlackList()) {
+            Item item = searchList(activeFilterType.filterType, phoneNumber);
+            if (item != null && item.isEnabled()) {
+                isBlocked = true;
+            }
+        } else if (activeFilterType.isWhiteList()) {
+            Item item = searchList(activeFilterType.filterType, phoneNumber);
+            if (item == null || (item != null && !item.isEnabled())) {
+                isBlocked = true;
+            }
+        }
+        if (isBlocked) {
+            logBlockedSMS(phoneNumber);
+        }
+        Log.d(this.getClass().getSimpleName(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
+        return isBlocked;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FilterTypeEnum getActiveFilterType() {
+        String filterType = getValue(FilterService.SMS_FILTER_TYPE);
+        try {
+            return FilterTypeEnum.valueOf(filterType);
+        } catch (Exception e) {
+            Log.e(this.getClass().getSimpleName(), "Filtertype not found for:" + filterType, e);
+            return null;
+        }
+    }
+
+    private void logBlockedSMS(String phoneNumber) {
+        String blockedSMS = System.currentTimeMillis() + ":" + phoneNumber;
+        updateList(FilterService.SMS_BLOCKED_LOG, new Item(blockedSMS, true));
     }
 
     /**

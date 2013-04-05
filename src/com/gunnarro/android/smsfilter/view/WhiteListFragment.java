@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.gunnarro.android.smsfilter.AppPreferences;
-import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
 import com.gunnarro.android.smsfilter.R;
+import com.gunnarro.android.smsfilter.service.FilterService;
+import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
 
 public class WhiteListFragment extends CommonListFragment {
 
@@ -16,20 +16,19 @@ public class WhiteListFragment extends CommonListFragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
         if (container == null) {
             return null;
         }
         View view = inflater.inflate(R.layout.white_list_layout, container, false);
-        super.onCreate(savedInstanceState);
-        super.setType(AppPreferences.SMS_WHITE_LIST);
+        super.setType(FilterService.SMS_WHITE_LIST);
         super.setAddBtnId(R.id.white_list_add_btn);
         super.setDelBtnId(R.id.white_list_del_btn);
         super.setRefreshBtnId(R.id.white_list_refresh_btn);
         super.setInputFieldId(R.id.white_list_input_field);
-        super.setAppPreferences(new ListAppPreferencesImpl(view.getContext()));
+        super.setAppPreferences(new FilterServiceImpl(view.getContext()));
         super.setupEventHandlers(view);
         return view;
     }
-
 }

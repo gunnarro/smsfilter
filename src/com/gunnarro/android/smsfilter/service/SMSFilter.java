@@ -1,18 +1,16 @@
-package com.gunnarro.android.smsfilter.sms;
+package com.gunnarro.android.smsfilter.service;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.gunnarro.android.smsfilter.AppPreferences;
-import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
 import com.gunnarro.android.smsfilter.domain.Item;
 
 public class SMSFilter {
 
-    private AppPreferences appPreferences;
+    private FilterService filterService;
 
     public enum FilterTypeEnum {
-        ALLOW_ALL("allowAll"), SMS_BLACK_LIST(AppPreferences.SMS_BLACK_LIST), SMS_WHITE_LIST(AppPreferences.SMS_WHITE_LIST), SMS_CONTACTS("contacts");
+        ALLOW_ALL("allowAll"), SMS_BLACK_LIST(FilterService.SMS_BLACK_LIST), SMS_WHITE_LIST(FilterService.SMS_WHITE_LIST), SMS_CONTACTS("contacts");
 
         private String filterType;
 
@@ -29,11 +27,11 @@ public class SMSFilter {
         }
 
         public boolean isWhiteList() {
-            return this.filterType == AppPreferences.SMS_WHITE_LIST;
+            return this.filterType == FilterService.SMS_WHITE_LIST;
         }
 
         public boolean isBlackList() {
-            return this.filterType == AppPreferences.SMS_BLACK_LIST;
+            return this.filterType == FilterService.SMS_BLACK_LIST;
         }
     }
 
@@ -48,7 +46,7 @@ public class SMSFilter {
      * @param context
      */
     public SMSFilter(Context context) {
-        appPreferences = new ListAppPreferencesImpl(context);
+        filterService = new FilterServiceImpl(context);
     }
 
     /**
@@ -57,7 +55,7 @@ public class SMSFilter {
      * @return true id activated, false otherwise
      */
     public boolean isActivated() {
-        return appPreferences.isFilterActivated();
+        return filterService.isSMSFilterActivated();
     }
 
     /**
@@ -83,12 +81,12 @@ public class SMSFilter {
             // Check contact list
             isBlocked = false;
         } else if (activeFilterType.isBlackList()) {
-            Item item = appPreferences.searchList(activeFilterType.filterType, phoneNumber);
+            Item item = filterService.searchList(activeFilterType.filterType, phoneNumber);
             if (item != null && item.isEnabled()) {
                 isBlocked = true;
             }
         } else if (activeFilterType.isWhiteList()) {
-            Item item = appPreferences.searchList(activeFilterType.filterType, phoneNumber);
+            Item item = filterService.searchList(activeFilterType.filterType, phoneNumber);
             if (item == null || (item != null && !item.isEnabled())) {
                 isBlocked = true;
             }
@@ -102,7 +100,7 @@ public class SMSFilter {
 
     private void logBlockedSMS(String phoneNumber) {
         String blockedSMS = System.currentTimeMillis() + ":" + phoneNumber;
-        appPreferences.updateList(AppPreferences.SMS_BLOCKED_LOG, new Item(blockedSMS, true));
+        filterService.updateList(FilterService.SMS_BLOCKED_LOG, new Item(blockedSMS, true));
     }
 
     /**
@@ -112,7 +110,7 @@ public class SMSFilter {
      * @return selected filter type
      */
     private FilterTypeEnum getActiveFilterType() {
-        String filterType = appPreferences.getValue(AppPreferences.SMS_FILTER_TYPE);
+        String filterType = filterService.getValue(FilterService.SMS_FILTER_TYPE);
         try {
             return FilterTypeEnum.valueOf(filterType);
         } catch (Exception e) {
@@ -126,7 +124,7 @@ public class SMSFilter {
      * 
      * @param appPreferences
      */
-    public void setAppPreferences(AppPreferences appPreferences) {
-        this.appPreferences = appPreferences;
+    public void setAppPreferences(FilterService appPreferences) {
+        this.filterService = appPreferences;
     }
 }

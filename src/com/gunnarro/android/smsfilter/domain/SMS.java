@@ -2,29 +2,20 @@ package com.gunnarro.android.smsfilter.domain;
 
 public class SMS {
 
-    private boolean isRead;
     private String number;
     private String status;
     private String seen;
-    private long time;
+    private String key;
     private String address;
     private String body;
     private String type;
-    private String key;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     private String period;
     private int numberOfReceived;
     private int numberOfSent;
     private int numberOfBlocked;
     private int count;
+    private long time;
+    private boolean isRead;
 
     public SMS(String period, int count) {
         this.period = period;
@@ -44,6 +35,14 @@ public class SMS {
         this.address = address;
         this.body = body;
         this.type = type;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getPeriod() {

@@ -6,37 +6,35 @@
     android:scrollbars="none" >
 
     <TableLayout
-        android:id="@+id/tableLayout1"
+        android:id="@+id/tableLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:shrinkColumns="*"
         android:stretchColumns="*" >
 
         <TableRow
-            android:id="@+id/tableRowHeader"
+            android:id="@+id/tablePeroidHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/tbl_background"
+            android:background="@color/black"
             android:gravity="center_horizontal" >
 
             <TextView
-                android:id="@+id/tableHeaderTxt"
+                android:id="@+id/tableHeaderPeriod"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_span="6"
+                android:layout_span="3"
+                android:background="@color/tbl_head_background"
                 android:gravity="center"
-                android:text="@string/sms_statistic"
-                android:textColor="@color/txt_default"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:typeface="serif" />
+                android:text="@string/tbl_blocked_periode"
+                android:textColor="@color/white" />
         </TableRow>
 
         <TableRow
-            android:id="@+id/tableRow4"
+            android:id="@+id/tableSelectionHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/tbl_background"
+            android:background="@color/tbl_head_background"
             android:gravity="center_horizontal" >
 
             <Spinner
@@ -61,10 +59,11 @@
             android:id="@+id/tableRowHeaders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/tbl_background" >
+            android:background="@color/tbl_head_background" >
 
             <ImageView
                 android:id="@+id/dateImg"
+                android:layout_span="2"
                 android:contentDescription="@string/na"
                 android:gravity="center_horizontal"
                 android:src="@drawable/calendar" />

@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,14 +24,14 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.gunnarro.android.smsfilter.AppPreferences;
-import com.gunnarro.android.smsfilter.ListAppPreferencesImpl;
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.domain.SMS;
+import com.gunnarro.android.smsfilter.service.FilterService;
+import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
 
 public class SMSStatisticFragment extends Fragment {
 
-    protected AppPreferences appPreferences;
+    protected FilterService appPreferences;
     private String viewBy = "Year";
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
@@ -51,7 +50,7 @@ public class SMSStatisticFragment extends Fragment {
         viewBySpinner.setAdapter(viewByAdapter);
         viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener());
 
-        this.appPreferences = new ListAppPreferencesImpl(view.getContext());
+        this.appPreferences = new FilterServiceImpl(view.getContext());
         setupEventHandlers(view);
         return view;
     }
@@ -81,7 +80,7 @@ public class SMSStatisticFragment extends Fragment {
     }
 
     private void clearStatistic(View view) {
-        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout1);
+        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout);
         if (table == null) {
             return;
         }
@@ -93,11 +92,11 @@ public class SMSStatisticFragment extends Fragment {
     }
 
     private void clearBlockedSMSlog() {
-        appPreferences.removeAllList(AppPreferences.SMS_BLOCKED_LOG);
+        appPreferences.removeAllList(FilterService.SMS_BLOCKED_LOG);
     }
 
     private void updateSMSStatistic(View view) {
-        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout1);
+        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout);
         // Remove all rows before updating the table, except for the table
         // header rows.
         clearStatistic(view);
@@ -122,37 +121,36 @@ public class SMSStatisticFragment extends Fragment {
 
         formatter.applyPattern("dd.MM.yyyy");
         String periode = formatter.format(startDate) + " - " + formatter.format(endDate);
-        TextView tableHeaderTxt = (TextView) view.findViewById(R.id.tableHeaderTxt);
+        TextView tableHeaderTxt = (TextView) view.findViewById(R.id.tableHeaderPeriod);
         tableHeaderTxt.setText(getResources().getString(R.string.tbl_blocked_periode) + ": " + periode);
-        tableHeaderTxt.setTextColor(Color.WHITE);
+        // tableHeaderTxt.setTextColor(getResources().getColor(R.color.white));
         // Add row with totals at the end of the table
         TableRow row = new TableRow(view.getContext());
-        // row.setBackgroundColor(getResources().getColor(R.color.tbl_background));
-        // row.setPadding(1, 1, 1, 1);
-        // row.setMinimumHeight(2);
         table.addView(row);
-        table.addView(createTableRow(view, summarySMS, 1));
+        table.addView(createTableRow(view, summarySMS, 3));
     }
 
     private TableRow createTableRow(View view, SMS sms, int rowNumber) {
         TableRow row = new TableRow(view.getContext());
-        int bgColor = R.color.tbl_row_even;
-        if (rowNumber % 2 == 0) {
-            bgColor = R.color.tbl_row_odd;
+        int rowBgColor = getResources().getColor(R.color.tbl_row_even);
+        if (rowNumber % 2 != 0) {
+            rowBgColor = getResources().getColor(R.color.tbl_row_odd);
         }
-        row.addView(createTextView(view, sms.getKey(), bgColor, R.color.tbl_background, Gravity.CENTER));
-        row.addView(createTextView(view, Integer.toString(sms.getNumberOfBlocked()), bgColor, R.color.navy, Gravity.RIGHT));
-        // row.setBackgroundColor(bgColor);
-        // row.setPadding(1, 1, 1, 1);
+        row.addView(createTextView(view, sms.getKey(), rowBgColor, getResources().getColor(R.color.tbl_txt), Gravity.CENTER));
+        row.addView(createTextView(view, Integer.toString(sms.getNumberOfBlocked()), rowBgColor, getResources().getColor(R.color.tbl_number), Gravity.RIGHT));
+        // Just in order to make the table symmetric with 3 colons all over.
+        // TableRow.LayoutParams params = (TableRow.LayoutParams)
+        // row.getLayoutParams();
+        // params.span = 3;
+        // row.setLayoutParams(params);
+        row.setBackgroundColor(rowBgColor);
+        row.setPadding(1, 1, 1, 1);
         return row;
     }
 
     private TextView createTextView(View view, String value, int bgColor, int txtColor, int gravity) {
         TextView txtView = new TextView(view.getContext());
         txtView.setText(value);
-        // txtView.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        // txtView.setTextSize(12);
-        // txtView.setLineSpacing(1, 1);
         txtView.setGravity(gravity);
         txtView.setBackgroundColor(bgColor);
         txtView.setTextColor(txtColor);

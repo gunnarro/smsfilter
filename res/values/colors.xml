@@ -13,8 +13,11 @@
     <color name="bg_disabled">#736F6E</color>
     <!-- table colors -->
     <color name="tbl_row_even">#ffffff</color>
-    <color name="tbl_row_odd">#ffffff</color>
-    <color name="tbl_background">#000033</color>
+    <color name="tbl_row_odd">#D0D0DD</color> <!-- light gray -->
+    <color name="tbl_background">#ffffff</color>
+    <color name="tbl_head_background">#000000</color> <!-- black -->
+    <color name="tbl_txt">#000000</color>
+    <color name="tbl_number">#0101FF</color> <!-- navy -->
     <!-- specific colors -->
     <color name="dark_green">#006400</color>
     <color name="navy">#000080</color>

@@ -11,14 +11,15 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import com.gunnarro.android.smsfilter.AppPreferences;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.service.FilterService;
 
 public class CommonListFragment extends ListFragment {
 
-    protected AppPreferences appPreferences;
+    protected FilterService filterService;
 
     /** Declaring an ArrayAdapter to set items to ListView */
     protected ArrayAdapter<Item> adapter;
@@ -43,6 +44,22 @@ public class CommonListFragment extends ListFragment {
      * {@inheritDoc}
      */
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initListView();
+    }
+
+    // @Override
+    // public void onResume() {
+    // // onResume happens after onStart and onActivityCreate
+    // initListView();
+    // super.onResume();
+    // }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void onListItemClick(ListView l, View v, int pos, long id) {
         super.onListItemClick(l, v, pos, id);
         Item item = localList.get(pos);
@@ -52,21 +69,24 @@ public class CommonListFragment extends ListFragment {
             checked = true;
         }
         item.setEnabled(checked);
-        appPreferences.updateList(type, item);
+        filterService.updateList(type, item);
         Log.d(this.getClass().getSimpleName(), "local:" + item.toValuePair());
         reloadDataSet();
     }
 
-    protected void initListView() {
+    private void initListView() {
+        StringBuffer sb = new StringBuffer();
         // Have to init. the check boxes upon loading
         for (int position = 0; position < adapter.getCount(); position++) {
             super.getListView().setItemChecked(position, adapter.getItem(position).isEnabled());
             CustomLog.d(this.getClass(), "smsitem: " + adapter.getItem(position).toValuePair());
+            sb.append(adapter.getItem(position).toValuePair()).append("\n");
         }
+        Toast.makeText(MainActivity.appContext, sb.toString(), Toast.LENGTH_LONG).show();
     }
 
-    protected void setAppPreferences(AppPreferences appPreferences) {
-        this.appPreferences = appPreferences;
+    protected void setAppPreferences(FilterService appPreferences) {
+        this.filterService = appPreferences;
         // Fist of all, we must load the saved local list.
         this.localList = appPreferences.getList(type);
     }
@@ -85,9 +105,9 @@ public class CommonListFragment extends ListFragment {
                 if (!value.isEmpty()) {
                     Item newItem = new Item(value, false);
                     if (addLocalList(newItem)) {
-                        reloadDataSet();
                         // Save the newly added item
-                        appPreferences.updateList(type, newItem);
+                        filterService.updateList(type, newItem);
+                        reloadDataSet();
                     }
                     // Clear the input text field after every list insertion
                     inputField.setText("");
@@ -105,7 +125,7 @@ public class CommonListFragment extends ListFragment {
                     if (checkedItemPositions.get(i)) {
                         Item item = localList.get(i);
                         adapter.remove(item);
-                        appPreferences.removeList(type, item);
+                        filterService.removeList(type, item);
                     }
                 }
                 reloadDataSet();
@@ -121,7 +141,10 @@ public class CommonListFragment extends ListFragment {
     }
 
     private void reloadDataSet() {
+        // update adapter
         adapter.notifyDataSetChanged();
+        // then update items in the list view
+        initListView();
     }
 
     private boolean addLocalList(Item newItem) {

@@ -1,11 +1,12 @@
-package com.gunnarro.android.smsfilter;
+package com.gunnarro.android.smsfilter.service;
 
 import java.util.List;
 
 import com.gunnarro.android.smsfilter.domain.Item;
 import com.gunnarro.android.smsfilter.domain.SMS;
+import com.gunnarro.android.smsfilter.service.FilterServiceImpl.FilterTypeEnum;
 
-public interface AppPreferences {
+public interface FilterService {
 
     /** Holds current selected filter type */
     public static final String SMS_FILTER_ACTIVATED = "sms_filter_activated";
@@ -19,11 +20,9 @@ public interface AppPreferences {
     public static final String SEPARATOR = ";";
 
     /**
-     * Returns the list of item for the given list type.
-     * Allowed list types are as follows:
-     * <li>SMS_BLACK_LIST</li>
-     * <li>SMS_WHITE_LIST</li>
-     * <li>SMS_BLOCKED_LOG</li>
+     * Returns the list of item for the given list type. Allowed list types are
+     * as follows: <li>SMS_BLACK_LIST</li> <li>SMS_WHITE_LIST</li> <li>
+     * SMS_BLOCKED_LOG</li>
      * 
      * @param type
      * @return
@@ -32,6 +31,7 @@ public interface AppPreferences {
 
     /**
      * return the list items as a string, ref. getList(String type)
+     * 
      * @param type
      * @return
      */
@@ -96,9 +96,28 @@ public interface AppPreferences {
     public List<SMS> getSMSList(String groupBy);
 
     /**
-     * Method to check if the sms filter is activated or not
+     * Method to get active filter type, which is stored in the internal app
+     * preference table.
      * 
-     * @return true if activated, alse otherwise
+     * @return selected filter type
      */
-    public boolean isFilterActivated();
+    public FilterTypeEnum getActiveFilterType();
+
+    /**
+     * Method to check if the phone number is blocked or not. If that's the
+     * case, the SMS is ignored and only logged to the SMSFilters blocked log.
+     * Otherwise, the SMS is handled as normal.
+     * 
+     * @param phoneNumber
+     * @return true if the phone number is blocked false otherwise.
+     */
+    public boolean isBlocked(String phoneNumber);
+
+    /**
+     * Tells whether the sms filter is activated or not.
+     * 
+     * @return true id activated, false otherwise
+     */
+    public boolean isSMSFilterActivated();
+
 }

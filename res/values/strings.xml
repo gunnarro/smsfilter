@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="app_name">SMS Filter v1.0.0</string>
+    <string name="app_description">SMS filter for Android, for blocking phonenumbers.</string>
     <string name="na">na</string>
     <string name="tab_setup">Setup</string>
     <string name="tab_blacklist">BlackList</string>
     <string name="tab_whitelist">WhiteList</string>
     <string name="tab_blocked">Blocked</string>
-    <string name="app_name">SMS Filter v1.0</string>
     <string name="turn_sms_filter_on_off_txt">Turn SMS filter on/off</string>
     <string name="log_title">Blocked SMS log</string>
     <string name="whitelist_title">WhiteList</string>

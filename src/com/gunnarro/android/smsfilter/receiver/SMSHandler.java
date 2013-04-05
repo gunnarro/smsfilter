@@ -7,7 +7,8 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
-import com.gunnarro.android.smsfilter.sms.SMSFilter;
+import com.gunnarro.android.smsfilter.service.FilterService;
+import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
 
 public class SMSHandler extends BroadcastReceiver {
 
@@ -35,8 +36,8 @@ public class SMSHandler extends BroadcastReceiver {
     }
 
     private void handleSMS(Context context, Bundle bundle) {
-        SMSFilter smsFilter = new SMSFilter(context);
-        if (!smsFilter.isActivated()) {
+        FilterService filterService = new FilterServiceImpl(context);
+        if (!filterService.isSMSFilterActivated()) {
             CustomLog.i(this.getClass(), "SMS filter not activated!");
             return;
         }
@@ -45,7 +46,7 @@ public class SMSHandler extends BroadcastReceiver {
         for (int i = 0; i < msgs.length; i++) {
             msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
             try {
-                if (smsFilter.isBlocked(msgs[i].getOriginatingAddress())) {
+                if (filterService.isBlocked(msgs[i].getOriginatingAddress())) {
                     super.abortBroadcast();
                 }
             } catch (Exception e) {
