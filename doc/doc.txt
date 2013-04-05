@@ -1,0 +1,51 @@
+﻿SMS Filter v.1.0.0 Documentation
+
+We will here give an short explanation of how to use the SMS filter by examples.
+
+Generally
+
+You activate the SMS filter by setting the switch button to 'On' under the Setup tab.
+You deactive the filer by setting it to 'Off'. By default the filter is turned off.
+All options under the Setup tab will be disable when the filter is dectivated.
+
+Under the Setup tab you can select wanted filter.
+The blacklist tab will be deactivated when the whitelist option is selected.
+And the whitelist tab will be deactivated when the blacklist option is selected.
+
+The filter support wild card in the phone numbers.
+For example, following expression +4792*, will match all number that starts with +4792.
+
+
+WhiteList
+By default no number is white listed.
+You activate whitelist by select 'Allow sms from phone numbers listed in whitelist only.' under the Setup tab.
+The blacklist tab will be deactivated when the whitelist option is selected.
+In order to white list a phone number you must add actual number to the white list, and then mark it.
+Then, only SMS from this number will slip through the filter.
+
+Note that an empty whitelist will actually block all incoming SMS.
+
+For example, adding +47* will allow phone numbers from Norway only.
+
+BlackList
+By default no number is black listed.
+You activate blacklist by select 'Reject sms from phone numbers listed in blacklist' under the Setup tab.
+The whitelist tab will be deactivated when the blacklist option is selected.
+In order to black list a phone number you must add actual number to the black list, and then mark it.
+later, you can simply, unmark it, if you do not want to black list this phone number anymore.
+
+For example, adding +45*, and mark it, will block all received sms form Denmark.
+
+Blocked
+From here you can view history over all blocked sms by simply click on the refresh button.
+The delete button will remove all history. Note that this operation cannot be recovered.
+
+Testing
+This application has been tested for the following devices and Android OS versions:
+
+Device				OS
+------------------------------------
+Samsung Galaxy 2	Android 4.2.2
+
+
+ 

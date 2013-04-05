@@ -1,0 +1,17 @@
+﻿(c) 2013 gunnarro
+Component    					: Android 4.0, SMS Filter
+Version							: 1.0.0
+Last release date 				: 04.03.2013
+Developer   					: Gunnar Rønneberg
+
+
+Release history
+----------------------------------------------------------------------
+Release date 		: 04.04.2013
+Version				: 1.0.0
+
+New features:
+	
+	
+BugFixes:
+	
