@@ -14,14 +14,16 @@ import android.widget.Switch;
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
-import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
-import com.gunnarro.android.smsfilter.service.FilterServiceImpl.FilterTypeEnum;
-import com.gunnarro.android.smsfilter.service.SMSFilter;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
 
 public class SetupFragment extends Fragment {
 
     private FilterService filterService;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -32,8 +34,28 @@ public class SetupFragment extends Fragment {
         return view;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onPause() {
+        this.filterService.close();
+        super.onPause();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onResume() {
+        // onResume happens after onStart and onActivityCreate
+        this.filterService.open();
+        super.onResume();
+    }
+
+    // FIXME
     private void init(final View view) {
-        FilterTypeEnum activeFilterType = filterService.getActiveFilterType();
+        FilterTypeEnum activeFilterType = null;// filterService.readActiveFilterType();
         if (activeFilterType == null) {
             activeFilterType = FilterTypeEnum.SMS_BLACK_LIST;
             CustomLog.d(this.getClass(), "filter type not set, default it to:" + activeFilterType);
@@ -102,7 +124,7 @@ public class SetupFragment extends Fragment {
     }
 
     private void saveFilterType(String value) {
-        filterService.save(FilterService.SMS_FILTER_TYPE, value);
+        filterService.save(FilterService.SMS_ACTIVE_FILTER_TYPE, value);
     }
 
     private void disableRadioButtons(RadioGroup rg, boolean isDisabled) {

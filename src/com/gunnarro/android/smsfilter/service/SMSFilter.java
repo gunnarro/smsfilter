@@ -4,36 +4,12 @@ import android.content.Context;
 import android.util.Log;
 
 import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
 
 public class SMSFilter {
 
     private FilterService filterService;
-
-    public enum FilterTypeEnum {
-        ALLOW_ALL("allowAll"), SMS_BLACK_LIST(FilterService.SMS_BLACK_LIST), SMS_WHITE_LIST(FilterService.SMS_WHITE_LIST), SMS_CONTACTS("contacts");
-
-        private String filterType;
-
-        FilterTypeEnum(String filterType) {
-            this.filterType = filterType;
-        }
-
-        public boolean isAllowAll() {
-            return this.filterType == "allowAll";
-        }
-
-        public boolean isContacts() {
-            return this.filterType == "contacts";
-        }
-
-        public boolean isWhiteList() {
-            return this.filterType == FilterService.SMS_WHITE_LIST;
-        }
-
-        public boolean isBlackList() {
-            return this.filterType == FilterService.SMS_BLACK_LIST;
-        }
-    }
 
     /**
      * default constructor
@@ -98,9 +74,11 @@ public class SMSFilter {
         return isBlocked;
     }
 
+    // FIXME
     private void logBlockedSMS(String phoneNumber) {
         String blockedSMS = System.currentTimeMillis() + ":" + phoneNumber;
-        filterService.updateList(FilterService.SMS_BLOCKED_LOG, new Item(blockedSMS, true));
+        // filterService.updateList("SMS_BLOCKED_LOG", new Item(blockedSMS,
+        // true));
     }
 
     /**
@@ -110,7 +88,7 @@ public class SMSFilter {
      * @return selected filter type
      */
     private FilterTypeEnum getActiveFilterType() {
-        String filterType = filterService.getValue(FilterService.SMS_FILTER_TYPE);
+        String filterType = filterService.getValue(FilterService.SMS_ACTIVE_FILTER_TYPE);
         try {
             return FilterTypeEnum.valueOf(filterType);
         } catch (Exception e) {

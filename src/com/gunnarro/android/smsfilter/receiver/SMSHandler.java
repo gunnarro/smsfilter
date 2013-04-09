@@ -8,7 +8,7 @@ import android.telephony.SmsMessage;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
-import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
 public class SMSHandler extends BroadcastReceiver {
 

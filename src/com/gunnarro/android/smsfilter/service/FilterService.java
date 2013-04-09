@@ -2,32 +2,34 @@ package com.gunnarro.android.smsfilter.service;
 
 import java.util.List;
 
+import android.database.SQLException;
+
 import com.gunnarro.android.smsfilter.domain.Item;
 import com.gunnarro.android.smsfilter.domain.SMS;
-import com.gunnarro.android.smsfilter.service.FilterServiceImpl.FilterTypeEnum;
+import com.gunnarro.android.smsfilter.domain.SMSLog;
+import com.gunnarro.android.smsfilter.domain.Setting;
 
 public interface FilterService {
 
     /** Holds current selected filter type */
     public static final String SMS_FILTER_ACTIVATED = "sms_filter_activated";
-    public static final String SMS_FILTER_TYPE = "sms_filter_type";
-    public static final String SMS_BLACK_LIST = "sms_black_list";
-    public static final String SMS_WHITE_LIST = "sms_white_list";
-    public static final String SMS_BLOCKED_LOG = "sms_blocked_log";
+    public static final String SMS_ACTIVE_FILTER_TYPE = "sms_active_filter_type";
 
     public static final String APP_SHARED_PREFS = "user_preferences";
     public static final String DEFAULT_VALUE = "";
     public static final String SEPARATOR = ";";
 
     /**
-     * Returns the list of item for the given list type. Allowed list types are
-     * as follows: <li>SMS_BLACK_LIST</li> <li>SMS_WHITE_LIST</li> <li>
-     * SMS_BLOCKED_LOG</li>
+     * Method to open repository starting leaving activity.
      * 
-     * @param type
-     * @return
+     * @throws SQLException
      */
-    public abstract List<Item> getList(String type);
+    public void open() throws SQLException;
+
+    /**
+     * Method to close repository when leaving or the activity is put on pause.
+     */
+    public void close();
 
     /**
      * return the list items as a string, ref. getList(String type)
@@ -96,14 +98,6 @@ public interface FilterService {
     public List<SMS> getSMSList(String groupBy);
 
     /**
-     * Method to get active filter type, which is stored in the internal app
-     * preference table.
-     * 
-     * @return selected filter type
-     */
-    public FilterTypeEnum getActiveFilterType();
-
-    /**
      * Method to check if the phone number is blocked or not. If that's the
      * case, the SMS is ignored and only logged to the SMSFilters blocked log.
      * Otherwise, the SMS is handled as normal.
@@ -120,4 +114,110 @@ public interface FilterService {
      */
     public boolean isSMSFilterActivated();
 
+    /**
+     * Method to get active filter type, which is stored in the internal app
+     * preference table.
+     * 
+     * @return selected filter type
+     */
+    public Setting readActiveFilterType();
+
+    /**
+     * Method to set active filter type. preference table.
+     * 
+     */
+    public boolean updateActiveFilterType(Setting activeFilter);
+
+    // ******************************************************
+    // Filter operations
+    // ******************************************************
+
+    /**
+     * Returns the list of item for the given list type. Allowed list types are
+     * as follows: <li>SMS_BLACK_LIST</li> <li>SMS_WHITE_LIST</li> <li>
+     * SMS_BLOCKED_LOG</li>
+     * 
+     * @param type
+     * @return
+     */
+    public List<Item> getFilterList(String type);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean createFilter(Item item);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean deleteFilter(Item item);
+
+    /**
+     * 
+     * @param filterName
+     * @return
+     */
+    public boolean deleteFilterAll(String filterName);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean updateFilter(Item item);
+
+    // ******************************************************
+    // Item operations
+    // ******************************************************
+    /**
+     * 
+     * @param filterType
+     * @return
+     */
+    public List<Item> getItemList(String filterType);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean deleteItem(Item item);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean updateItem(Item item);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean createItem(String filterName, Item item);
+
+    // ******************************************************
+    // Log operations
+    // ******************************************************
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean createLog(SMSLog log);
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean deleteLogAll();
+
+    public void debugList(String type);
 }

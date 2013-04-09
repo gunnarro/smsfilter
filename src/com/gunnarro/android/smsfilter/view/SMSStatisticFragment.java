@@ -27,11 +27,11 @@ import android.widget.TextView;
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.domain.SMS;
 import com.gunnarro.android.smsfilter.service.FilterService;
-import com.gunnarro.android.smsfilter.service.FilterServiceImpl;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
 public class SMSStatisticFragment extends Fragment {
 
-    protected FilterService appPreferences;
+    protected FilterService filterService;
     private String viewBy = "Year";
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
@@ -50,7 +50,7 @@ public class SMSStatisticFragment extends Fragment {
         viewBySpinner.setAdapter(viewByAdapter);
         viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener());
 
-        this.appPreferences = new FilterServiceImpl(view.getContext());
+        this.filterService = new FilterServiceImpl(view.getContext());
         setupEventHandlers(view);
         return view;
     }
@@ -59,6 +59,25 @@ public class SMSStatisticFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onPause() {
+        this.filterService.close();
+        super.onPause();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onResume() {
+        // onResume happens after onStart and onActivityCreate
+        this.filterService.open();
+        super.onResume();
     }
 
     private void setupEventHandlers(final View view) {
@@ -92,7 +111,7 @@ public class SMSStatisticFragment extends Fragment {
     }
 
     private void clearBlockedSMSlog() {
-        appPreferences.removeAllList(FilterService.SMS_BLOCKED_LOG);
+        filterService.removeAllList("SMS_BLOCKED_LOG");
     }
 
     private void updateSMSStatistic(View view) {
@@ -100,7 +119,7 @@ public class SMSStatisticFragment extends Fragment {
         // Remove all rows before updating the table, except for the table
         // header rows.
         clearStatistic(view);
-        List<SMS> blockedSMSList = appPreferences.getSMSList(viewBy);
+        List<SMS> blockedSMSList = filterService.getSMSList(viewBy);
         Collections.sort(blockedSMSList, new Comparator<SMS>() {
             public int compare(SMS sms1, SMS sms2) {
                 return sms2.getKey().compareTo(sms1.getKey());

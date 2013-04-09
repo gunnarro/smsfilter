@@ -1,4 +1,4 @@
-package com.gunnarro.android.smsfilter.service;
+package com.gunnarro.android.smsfilter.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,11 +10,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
+import android.database.Cursor;
+import android.database.SQLException;
 
+import com.gunnarro.android.smsfilter.contentprovider.FilterContentProvider;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.Filter;
 import com.gunnarro.android.smsfilter.domain.Item;
 import com.gunnarro.android.smsfilter.domain.SMS;
+import com.gunnarro.android.smsfilter.domain.SMSLog;
+import com.gunnarro.android.smsfilter.domain.Setting;
+import com.gunnarro.android.smsfilter.repository.FilterRepository;
+import com.gunnarro.android.smsfilter.repository.impl.FilterRepositoryImpl;
+import com.gunnarro.android.smsfilter.repository.table.FilterTable;
+import com.gunnarro.android.smsfilter.service.FilterService;
 
 /**
  * Class to store and read values from the android shared preferences.
@@ -24,33 +33,37 @@ import com.gunnarro.android.smsfilter.domain.SMS;
  */
 public class FilterServiceImpl implements FilterService {
 
+    private FilterRepository filterRepository;
+
+    private Context context;
     private SharedPreferences appSharedPrefs;
     private Editor prefsEditor;
 
     public enum FilterTypeEnum {
-        ALLOW_ALL("allowAll"), SMS_BLACK_LIST(FilterService.SMS_BLACK_LIST), SMS_WHITE_LIST(FilterService.SMS_WHITE_LIST), SMS_CONTACTS("contacts");
+        ALLOW_ALL("allow_all"), SMS_BLACK_LIST("sms_black_list"), SMS_WHITE_LIST("sms_white_list"), SMS_CONTACTS("contacts");
 
-        private String filterType;
+        public String filterType;
 
         FilterTypeEnum(String filterType) {
             this.filterType = filterType;
         }
 
         public boolean isAllowAll() {
-            return this.filterType == "allowAll";
+            return this.equals(FilterTypeEnum.ALLOW_ALL);
         }
 
         public boolean isContacts() {
-            return this.filterType == "contacts";
+            return this.equals(FilterTypeEnum.SMS_CONTACTS);
         }
 
         public boolean isWhiteList() {
-            return this.filterType == FilterService.SMS_WHITE_LIST;
+            return this.equals(FilterTypeEnum.SMS_WHITE_LIST);
         }
 
         public boolean isBlackList() {
-            return this.filterType == FilterService.SMS_BLACK_LIST;
+            return this.equals(FilterTypeEnum.SMS_BLACK_LIST);
         }
+
     }
 
     /**
@@ -59,9 +72,18 @@ public class FilterServiceImpl implements FilterService {
     public FilterServiceImpl() {
     }
 
+    /**
+     * 
+     * @param context
+     */
     public FilterServiceImpl(Context context) {
+        this.context = context;
         this.appSharedPrefs = context.getSharedPreferences(APP_SHARED_PREFS, Activity.MODE_PRIVATE);
         this.prefsEditor = appSharedPrefs.edit();
+        // The repository is opened and closed by the activity that use the
+        // filter service. Which is done in the onPause() and onResume() methods
+        // of the activity.
+        this.filterRepository = new FilterRepositoryImpl(context);
     }
 
     public static String createSearch(String value) {
@@ -76,16 +98,30 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
+    public void open() throws SQLException {
+        filterRepository.open();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() {
+        filterRepository.close();
+    }
+
     public List<Item> getList(String type) {
         List<Item> list = new ArrayList<Item>();
         // The items are stored as comma separated values
         String storedValues = getListAsString(type);
         if (storedValues != null && storedValues.length() > 1) {
             for (String valuePair : storedValues.split(SEPARATOR)) {
-                CustomLog.i(this.getClass(), "type=" + type + ", value=" + valuePair);
                 Item item = Item.createItem(valuePair);
                 if (item != null) {
                     list.add(item);
+                    CustomLog.i(this.getClass(), "value=" + item.toValuePair());
+                } else {
+                    CustomLog.e(this.getClass(), "Error creating item for: " + valuePair);
                 }
             }
         }
@@ -98,7 +134,7 @@ public class FilterServiceImpl implements FilterService {
     @Override
     public List<SMS> getSMSList(String groupBy) {
         Map<String, SMS> map = new HashMap<String, SMS>();
-        String list = getListAsString(FilterService.SMS_BLOCKED_LOG);
+        String list = getListAsString("SMS_BLOCKED_LOG");
         if (list != null && list.length() > 1) {
             for (String blocked : list.split(FilterService.SEPARATOR)) {
                 String[] split = blocked.split(":");
@@ -163,12 +199,28 @@ public class FilterServiceImpl implements FilterService {
         StringBuffer listStr = new StringBuffer(getListAsString(type));
         if (listStr.length() == 0) {
             listStr.append(item.toValuePair());
-        } else if (!listStr.toString().contains(item.getValue()) && item.getValue().length() > 1) {
+            CustomLog.i(this.getClass(), "empty value=" + item.toValuePair());
+        } else if (item.getValue().length() > 1 && !listStr.toString().contains(item.getValue())) {
+            // this was a new item, add it to the list
             listStr.append(SEPARATOR).append(item.toValuePair());
+            CustomLog.i(this.getClass(), "new value=" + item.toValuePair());
+        } else if (item.getValue().length() > 1) {
+            // this was an existing item, update the items enabled value
+            listStr = new StringBuffer();
+            for (Item currItem : getList(type)) {
+                if (currItem.getValue().equals(item.getValue())) {
+                    currItem.setEnabled(item.isEnabled());
+                    CustomLog.i(this.getClass(), "update value=" + currItem.toValuePair());
+                }
+                listStr.append(currItem.toValuePair()).append(SEPARATOR);
+            }
+            // Strip of last separator
+            listStr.delete(listStr.toString().length() - 1, listStr.toString().length());
         }
         prefsEditor.putString(type, listStr.toString());
         boolean updated = prefsEditor.commit();
-        CustomLog.i(this.getClass(), "type=" + type + ", value=" + item.toValuePair() + ", updated=" + updated);
+        CustomLog.i(this.getClass(), "value=" + listStr.toString() + " updated=" + updated);
+        debugList(type);
         return updated;
     }
 
@@ -256,7 +308,7 @@ public class FilterServiceImpl implements FilterService {
         boolean isBlocked = false;
         FilterTypeEnum activeFilterType = getActiveFilterType();
         if (activeFilterType == null) {
-            Log.e(this.getClass().getSimpleName(), "isBlocked(): BUG: filter type not found, do not block sms!");
+            CustomLog.e(this.getClass(), "isBlocked(): BUG: filter type not found, do not block sms!");
             return false;
         }
 
@@ -264,6 +316,7 @@ public class FilterServiceImpl implements FilterService {
             // wide open for everyone
             isBlocked = false;
         } else if (activeFilterType.isContacts()) {
+            // TODO
             // Check contact list
             isBlocked = false;
         } else if (activeFilterType.isBlackList()) {
@@ -280,27 +333,35 @@ public class FilterServiceImpl implements FilterService {
         if (isBlocked) {
             logBlockedSMS(phoneNumber);
         }
-        Log.d(this.getClass().getSimpleName(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
+        CustomLog.d(this.getClass(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
         return isBlocked;
     }
 
     /**
      * {@inheritDoc}
+     * 
+     * @deprecated
      */
-    @Override
+    // @Override
     public FilterTypeEnum getActiveFilterType() {
-        String filterType = getValue(FilterService.SMS_FILTER_TYPE);
+        String filterType = getValue(FilterService.SMS_ACTIVE_FILTER_TYPE);
         try {
             return FilterTypeEnum.valueOf(filterType);
         } catch (Exception e) {
-            Log.e(this.getClass().getSimpleName(), "Filtertype not found for:" + filterType, e);
+            CustomLog.e(this.getClass(), "Filtertype not found for:" + filterType + ", " + e.getMessage());
             return null;
         }
     }
 
     private void logBlockedSMS(String phoneNumber) {
         String blockedSMS = System.currentTimeMillis() + ":" + phoneNumber;
-        updateList(FilterService.SMS_BLOCKED_LOG, new Item(blockedSMS, true));
+        updateList("SMS_BLOCKED_LOG", new Item(blockedSMS, true));
+    }
+
+    public void debugList(String type) {
+        for (Item item : getList(type)) {
+            CustomLog.d(this.getClass(), item.toValuePair());
+        }
     }
 
     /**
@@ -317,6 +378,188 @@ public class FilterServiceImpl implements FilterService {
      */
     public void setPrefsEditor(Editor prefsEditor) {
         this.prefsEditor = prefsEditor;
+    }
+
+    // ******************************' with sqllite *********************
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Setting readActiveFilterType() {
+        return this.filterRepository.readActiveFilterType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean updateActiveFilterType(Setting activeFilter) {
+        return this.filterRepository.updateActiveFilterType(activeFilter);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Item> getFilterList(String type) {
+        List<Item> list = new ArrayList<Item>();
+        String[] projection = FilterTable.TABLE_COLUMNS;
+        Cursor cursor = context.getContentResolver().query(FilterContentProvider.CONTENT_URI, projection, getSelection(), new String[] { type }, getOrderBy());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            // list.add(mapCursorToItem(cursor));
+            cursor.moveToNext();
+        }
+        // Make sure to close the cursor
+        cursor.close();
+        CustomLog.d(this.getClass(), "type=" + type);
+        return list;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean deleteFilter(Item item) {
+        StringBuffer where = new StringBuffer();
+        where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
+        // FIXME
+        String[] selectionArgs = null;// { item.getType() };
+        int deleted = context.getContentResolver().delete(FilterContentProvider.CONTENT_URI, where.toString(), selectionArgs);
+        CustomLog.d(this.getClass(), item.toValuePair() + "; deleted id=" + deleted);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean deleteFilterAll(String filterName) {
+        StringBuffer where = new StringBuffer();
+        where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
+        String[] selectionArgs = { filterName };
+        int deleted = context.getContentResolver().delete(FilterContentProvider.CONTENT_URI, where.toString(), selectionArgs);
+        CustomLog.d(this.getClass(), filterName + "; deleted all id=" + deleted);
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean updateFilter(Item item) {
+        // StringBuffer where = new StringBuffer();
+        // where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
+        // String[] selectionArgs = { item.getType() };
+        // ContentValues values =
+        // FilterTable.createContentValues(item.getType(),
+        // Boolean.TRUE.toString(), item.getValue(),
+        // item.isEnabled().toString());
+        // int update =
+        // context.getContentResolver().update(FilterContentProvider.CONTENT_URI,
+        // values, where.toString(), selectionArgs);
+        // CustomLog.d(this.getClass(), item.toValuePair() + "; updated id=" +
+        // update);
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean createFilter(Item item) {
+        // Uri insert =
+        // context.getContentResolver().insert(FilterContentProvider.CONTENT_URI,
+        // FilterTable.createContentValues(item.getType(), "true",
+        // item.getValue(), item.isEnabled().toString()));
+        // CustomLog.d(this.getClass(), item.toValuePair());
+        return true;
+    }
+
+    private String getSelection() {
+        return "filter_name LIKE ?";
+    }
+
+    private String getOrderBy() {
+        return "filter_name ASC";
+    }
+
+    public Filter turnFilterOnOff(Filter filter) {
+        if (filter.isActivated()) {
+            // Then we have to check that only on filter is activated at time.
+        }
+        this.filterRepository.updateFilter(filter);
+        return null;
+    }
+
+    // ******************************************************
+    // Item operations
+    // ******************************************************
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Item> getItemList(String filterType) {
+        return this.filterRepository.getItemList(filterType);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean deleteItem(Item item) {
+        return this.filterRepository.deleteItem(item);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean updateItem(Item item) {
+        return this.filterRepository.updateItem(item);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean createItem(String filterName, Item item) {
+        // get filter id for selected filter name
+        Filter filter = filterRepository.getFilter(filterName);
+        // tie this item to correct filter id
+        item.setFkFilterId(filter.getId());
+        return this.filterRepository.createItem(item);
+    }
+
+    // ******************************************************
+    // Log operations
+    // ******************************************************
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean createLog(SMSLog log) {
+        return filterRepository.createLog(log);
+    }
+
+    /**
+     * 
+     * @param item
+     * @return
+     */
+    public boolean deleteLogAll() {
+        return filterRepository.deleteLog(null);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public List<SMSLog> getLogList() {
+        return filterRepository.getLogList();
     }
 
 }
