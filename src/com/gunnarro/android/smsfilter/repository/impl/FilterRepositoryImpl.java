@@ -29,7 +29,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     private FilterDataBaseHjelper dbHelper;
 
     public FilterRepositoryImpl(Context context) {
-        dbHelper = new FilterDataBaseHjelper(context);
+        dbHelper = FilterDataBaseHjelper.getInstance(context);
     }
 
     /**
@@ -89,7 +89,8 @@ public class FilterRepositoryImpl implements FilterRepository {
     }
 
     private Setting mapCursorToSetting(Cursor cursor) {
-        return new Setting(cursor.getString(0), cursor.getString(2));
+        return new Setting(cursor.getString(cursor.getColumnIndex(SettingTable.COLUMN_NAME)),
+                cursor.getString(cursor.getColumnIndex(SettingTable.COLUMN_VALUE)));
     }
 
     // ******************************************************
@@ -208,7 +209,8 @@ public class FilterRepositoryImpl implements FilterRepository {
     }
 
     private Filter mapCursorToFilter(Cursor cursor) {
-        return new Filter(cursor.getInt(0), cursor.getString(1), Boolean.parseBoolean(cursor.getString(2)));
+        return new Filter(cursor.getInt(cursor.getColumnIndex(FilterTable.COLUMN_ID)), cursor.getString(cursor.getColumnIndex(FilterTable.COLUMN_FILTER_NAME)),
+                Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(FilterTable.COLUMN_ACTIVATED))));
     }
 
     // ******************************************************
@@ -216,7 +218,9 @@ public class FilterRepositoryImpl implements FilterRepository {
     // ******************************************************
 
     private Item mapCursorToItem(Cursor cursor) {
-        return new Item(cursor.getInt(0), cursor.getInt(1), cursor.getString(2), Boolean.parseBoolean(cursor.getString(3)));
+        return new Item(cursor.getInt(cursor.getColumnIndex(ItemTable.COLUMN_ID)), cursor.getInt(cursor.getColumnIndex(ItemTable.COLUMN_FK_FILTER_ID)),
+                cursor.getString(cursor.getColumnIndex(ItemTable.COLUMN_VALUE)), Boolean.parseBoolean(cursor.getString(cursor
+                        .getColumnIndex(ItemTable.COLUMN_SELECTED))));
     }
 
     /**
@@ -330,6 +334,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     }
 
     private SMSLog mapCursorToLog(Cursor cursor) {
-        return new SMSLog(cursor.getString(1), cursor.getString(3), Boolean.parseBoolean(cursor.getString(4)));
+        return new SMSLog(cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_RECEIVED_DATE)), cursor.getString(cursor
+                .getColumnIndex(SMSLogTable.COLUMN_PHONE_NUMBER)), Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_STATUS))));
     }
 }

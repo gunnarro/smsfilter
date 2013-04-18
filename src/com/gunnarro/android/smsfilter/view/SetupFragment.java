@@ -39,7 +39,7 @@ public class SetupFragment extends Fragment {
      */
     @Override
     public void onPause() {
-        this.filterService.close();
+        // this.filterService.close();
         super.onPause();
     }
 
@@ -49,7 +49,7 @@ public class SetupFragment extends Fragment {
     @Override
     public void onResume() {
         // onResume happens after onStart and onActivityCreate
-        this.filterService.open();
+        // this.filterService.open();
         super.onResume();
     }
 

@@ -15,7 +15,33 @@ public class FilterDataBaseHjelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "smsfiltertest.db";
     private static final int DATABASE_VERSION = 1;
 
-    public FilterDataBaseHjelper(Context context) {
+    private static FilterDataBaseHjelper instance = null;
+
+    /**
+     * Declare your database helper as a static instance variable and use the
+     * Abstract Factory pattern to guarantee the singleton property. The static
+     * factory getInstance method ensures that only one FilterDataBaseHjelper
+     * will ever exist at any given time. If the mInstance object has not been
+     * initialized, one will be created. If one has already been created then it
+     * will simply be returned. You should not initialize your helper object
+     * using with new FilterDataBaseHjelper(context)!. Instead, always use
+     * FilterDataBaseHjelper.getInstance(context), as it guarantees that only
+     * one database helper will exist across the entire application's lifecycle.
+     * {@link <a href=
+     * "http://www.androiddesignpatterns.com/2012/05/correctly-managing-your-
+     * sqlite-database.html
+     * ">http://www.androiddesignpatterns.com/2012/05/correctly-managing-your-sqlite-database.html</a>
+     */
+    public static FilterDataBaseHjelper getInstance(Context ctx) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        if (instance == null) {
+            instance = new FilterDataBaseHjelper(ctx.getApplicationContext());
+        }
+        return instance;
+    }
+
+    private FilterDataBaseHjelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

@@ -84,6 +84,7 @@ public class FilterServiceImpl implements FilterService {
         // filter service. Which is done in the onPause() and onResume() methods
         // of the activity.
         this.filterRepository = new FilterRepositoryImpl(context);
+        this.filterRepository.open();
     }
 
     public static String createSearch(String value) {
@@ -94,21 +95,21 @@ public class FilterServiceImpl implements FilterService {
         return filter;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void open() throws SQLException {
-        filterRepository.open();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void close() {
-        filterRepository.close();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void open() throws SQLException {
+//        filterRepository.open();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void close() {
+//        filterRepository.close();
+//    }
 
     public List<Item> getList(String type) {
         List<Item> list = new ArrayList<Item>();

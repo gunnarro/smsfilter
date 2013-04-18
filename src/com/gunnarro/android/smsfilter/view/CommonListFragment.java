@@ -52,7 +52,7 @@ public class CommonListFragment extends ListFragment {
      */
     @Override
     public void onPause() {
-        this.filterService.close();
+//        this.filterService.close();
         super.onPause();
     }
 
@@ -62,7 +62,7 @@ public class CommonListFragment extends ListFragment {
     @Override
     public void onResume() {
         // onResume happens after onStart and onActivityCreate
-        this.filterService.open();
+//        this.filterService.open();
         initListView();
         super.onResume();
     }
@@ -124,7 +124,7 @@ public class CommonListFragment extends ListFragment {
     protected void setFilterService(FilterService filterService) {
         this.filterService = filterService;
         // have to open the repository before initialization the list with data.
-        filterService.open();
+//        filterService.open();
     }
 
     protected void setupEventHandlers(final View view) {

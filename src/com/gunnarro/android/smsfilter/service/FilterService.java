@@ -24,12 +24,12 @@ public interface FilterService {
      * 
      * @throws SQLException
      */
-    public void open() throws SQLException;
+//    public void open() throws SQLException;
 
     /**
      * Method to close repository when leaving or the activity is put on pause.
      */
-    public void close();
+//    public void close();
 
     /**
      * return the list items as a string, ref. getList(String type)
