@@ -2,14 +2,11 @@ package com.gunnarro.android.smsfilter.view;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +22,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.gunnarro.android.smsfilter.R;
-import com.gunnarro.android.smsfilter.domain.SMS;
+import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
@@ -48,7 +46,7 @@ public class SMSStatisticFragment extends Fragment {
                 android.R.layout.simple_spinner_item);
         viewByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         viewBySpinner.setAdapter(viewByAdapter);
-        viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener());
+        viewBySpinner.setOnItemSelectedListener(new ViewByOnItemSelectedListener(view));
 
         this.filterService = new FilterServiceImpl(view.getContext());
         setupEventHandlers(view);
@@ -61,102 +59,89 @@ public class SMSStatisticFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onPause() {
-//        this.filterService.close();
-        super.onPause();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void onResume() {
-        // onResume happens after onStart and onActivityCreate
-//        this.filterService.open();
-        super.onResume();
-    }
-
-    private void setupEventHandlers(final View view) {
-        ImageButton refreshButton = (ImageButton) view.findViewById(R.id.refresh_statistic_btn);
+    private void setupEventHandlers(final View statView) {
+        ImageButton refreshButton = (ImageButton) statView.findViewById(R.id.refresh_statistic_btn);
         refreshButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                updateSMSStatistic(view);
+                // addTestData();
+                updateSMSStatistic(statView);
             }
         });
 
-        ImageButton deleteButton = (ImageButton) view.findViewById(R.id.delete_statistic_btn);
+        ImageButton deleteButton = (ImageButton) statView.findViewById(R.id.delete_statistic_btn);
         deleteButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View arg0) {
+            public void onClick(View btnView) {
                 clearBlockedSMSlog();
+                // the update the view
+                updateSMSStatistic(statView);
             }
         });
     }
 
-    private void clearStatistic(View view) {
-        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout);
+    private void clearStatistic(View statView) {
+        TableLayout table = (TableLayout) statView.findViewById(R.id.tableLayout);
         if (table == null) {
             return;
         }
-        Log.i("clearStatistic", "...child: " + table.getChildCount());
+        CustomLog.i(this.getClass(), "...child: " + table.getChildCount());
         if (table.getChildCount() > 3) {
             table.removeViews(3, table.getChildCount() - 3);
-            Log.i("clearStatistic", "Removed rows: " + (table.getChildCount() - 3));
+            CustomLog.i(this.getClass(), "Removed rows from view: " + (table.getChildCount() - 3));
         }
     }
 
     private void clearBlockedSMSlog() {
-        filterService.removeAllList("SMS_BLOCKED_LOG");
+        filterService.removeAllLog();
+        CustomLog.i(this.getClass(), "Removed all from DB");
     }
 
-    private void updateSMSStatistic(View view) {
-        TableLayout table = (TableLayout) view.findViewById(R.id.tableLayout);
+    private void updateSMSStatistic(View statView) {
+        TableLayout table = (TableLayout) statView.findViewById(R.id.tableLayout);
+        if (table == null) {
+            return;
+        }
         // Remove all rows before updating the table, except for the table
         // header rows.
-        clearStatistic(view);
-        List<SMS> blockedSMSList = filterService.getSMSList(viewBy);
-        Collections.sort(blockedSMSList, new Comparator<SMS>() {
-            public int compare(SMS sms1, SMS sms2) {
-                return sms2.getKey().compareTo(sms1.getKey());
-            };
-        });
-
-        Date startDate = Calendar.getInstance().getTime();
-        Date endDate = startDate;
-
-        SMS summarySMS = new SMS(getResources().getString(R.string.tbl_blocked_total), 0);
-        summarySMS.setKey(getResources().getString(R.string.tbl_blocked_total));
-        for (SMS sms : blockedSMSList) {
-            startDate = startDate.before(new Date(sms.getTimeMilliSecound())) ? startDate : new Date(sms.getTimeMilliSecound());
-            endDate = endDate.after(new Date(sms.getTimeMilliSecound())) ? endDate : new Date(sms.getTimeMilliSecound());
-            summarySMS.increaseNumberOfBlocked(sms.getNumberOfBlocked());
-            table.addView(createTableRow(view, sms, table.getChildCount()));
+        clearStatistic(statView);
+        List<SMSLog> blockedSMSmsLogs = filterService.getLogs(viewBy);
+        List<SMSLog> logsStartDateAndEndDate = filterService.getLogsStartDateAndEndDate();
+        Date startDate = logsStartDateAndEndDate != null ? new Date(logsStartDateAndEndDate.get(0).getReceivedTime()) : Calendar.getInstance().getTime();
+        Date endDate = logsStartDateAndEndDate != null ? new Date(logsStartDateAndEndDate.get(1).getReceivedTime()) : Calendar.getInstance().getTime();
+        int totalCount = 0;
+        for (SMSLog sms : blockedSMSmsLogs) {
+            totalCount += sms.getCount();
+            table.addView(createTableRow(statView, sms.getKey(), sms.getCount(), table.getChildCount()));
         }
-
         formatter.applyPattern("dd.MM.yyyy");
         String periode = formatter.format(startDate) + " - " + formatter.format(endDate);
-        TextView tableHeaderTxt = (TextView) view.findViewById(R.id.tableHeaderPeriod);
+        TextView tableHeaderTxt = (TextView) statView.findViewById(R.id.tableHeaderPeriod);
         tableHeaderTxt.setText(getResources().getString(R.string.tbl_blocked_periode) + ": " + periode);
         // tableHeaderTxt.setTextColor(getResources().getColor(R.color.white));
         // Add row with totals at the end of the table
-        TableRow row = new TableRow(view.getContext());
+        TableRow row = new TableRow(statView.getContext());
         table.addView(row);
-        table.addView(createTableRow(view, summarySMS, 3));
+        table.addView(createTableRow(statView, getResources().getString(R.string.tbl_blocked_total), totalCount, -1));
     }
 
-    private TableRow createTableRow(View view, SMS sms, int rowNumber) {
-        TableRow row = new TableRow(view.getContext());
+    private TableRow createTableRow(View statView, String value, int count, int rowNumber) {
+        TableRow row = new TableRow(statView.getContext());
         int rowBgColor = getResources().getColor(R.color.tbl_row_even);
+        int txtColor = getResources().getColor(R.color.tbl_txt);
+        int numberColor = getResources().getColor(R.color.tbl_number);
         if (rowNumber % 2 != 0) {
             rowBgColor = getResources().getColor(R.color.tbl_row_odd);
         }
-        row.addView(createTextView(view, sms.getKey(), rowBgColor, getResources().getColor(R.color.tbl_txt), Gravity.CENTER));
-        row.addView(createTextView(view, Integer.toString(sms.getNumberOfBlocked()), rowBgColor, getResources().getColor(R.color.tbl_number), Gravity.RIGHT));
+
+        if (rowNumber == -1) {
+            // use different colors for the summary row
+            rowBgColor = getResources().getColor(R.color.tbl_head_background);
+            txtColor = getResources().getColor(R.color.white);
+            numberColor = getResources().getColor(R.color.white);
+        }
+        row.addView(createTextView(statView, value, rowBgColor, txtColor, Gravity.CENTER));
+        row.addView(createTextView(statView, Integer.toString(count), rowBgColor, numberColor, Gravity.RIGHT));
         // Just in order to make the table symmetric with 3 colons all over.
         // TableRow.LayoutParams params = (TableRow.LayoutParams)
         // row.getLayoutParams();
@@ -167,8 +152,8 @@ public class SMSStatisticFragment extends Fragment {
         return row;
     }
 
-    private TextView createTextView(View view, String value, int bgColor, int txtColor, int gravity) {
-        TextView txtView = new TextView(view.getContext());
+    private TextView createTextView(View statView, String value, int bgColor, int txtColor, int gravity) {
+        TextView txtView = new TextView(statView.getContext());
         txtView.setText(value);
         txtView.setGravity(gravity);
         txtView.setBackgroundColor(bgColor);
@@ -176,10 +161,29 @@ public class SMSStatisticFragment extends Fragment {
         return txtView;
     }
 
+    // for testing only
+    @Deprecated
+    private void addTestData() {
+        this.filterService.createLog(new SMSLog(System.currentTimeMillis(), "11223344", SMSLog.STATUS_SMS_INCOMMING, "none"));
+    }
+
+    /**
+     * 
+     * @author gunnarro
+     * 
+     */
     public class ViewByOnItemSelectedListener implements OnItemSelectedListener {
+        final View statView;
+
+        public ViewByOnItemSelectedListener(final View statView) {
+            this.statView = statView;
+        }
+
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             viewBy = parent.getItemAtPosition(pos).toString();
+            // update the table upon item selection
+            updateSMSStatistic(statView);
         }
 
         @Override

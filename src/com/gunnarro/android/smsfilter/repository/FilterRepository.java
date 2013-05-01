@@ -7,13 +7,13 @@ import android.database.SQLException;
 import com.gunnarro.android.smsfilter.domain.Filter;
 import com.gunnarro.android.smsfilter.domain.Item;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
-import com.gunnarro.android.smsfilter.domain.Setting;
 
 public interface FilterRepository {
 
     /**
      * The repository should be opened by the activity that use the repository.
-     * This should be done in the onCreate() and onResume() methods of the activity.
+     * This should be done in the onCreate() and onResume() methods of the
+     * activity.
      * 
      * @throws SQLException
      */
@@ -32,22 +32,36 @@ public interface FilterRepository {
     // ******************************************************
 
     /**
+     * Method to check if the sms filter is turned on or off.
+     * 
+     * @return true if the filter is activated, false otherwise
+     */
+    public boolean isSMSFilterActivated();
+
+    /**
+     * Method to activate or deactivate the sms filter.
+     * 
+     * @param isActivated true if the filter is activated, false otherwise
+     */
+    public void updateSMSFilterActivated(boolean isActivated);
+
+    /**
+     * 
+     * @return
+     */
+    public boolean isLogSMS();
+
+    // ******************************************************
+    // Filter operations
+    // ******************************************************
+
+    /**
      * Method to get active filter type, which is stored in the internal app
      * preference table.
      * 
      * @return selected filter type
      */
-    public Setting readActiveFilterType();
-
-    /**
-     * Method to set active filter type. preference table.
-     * 
-     */
-    public boolean updateActiveFilterType(Setting filterSetting);
-
-    // ******************************************************
-    // Filter operations
-    // ******************************************************
+    public Filter getActiveFilter();
 
     /**
      * 
@@ -134,7 +148,9 @@ public interface FilterRepository {
     // Log operations
     // ******************************************************
 
-    public List<SMSLog> getLogList();
+    public List<SMSLog> getLogListOrderByDate();
+
+    public List<SMSLog> getLogList(String groupBy);
 
     /**
      * 
@@ -145,8 +161,8 @@ public interface FilterRepository {
 
     /**
      * 
-     * @param item
      * @return
      */
-    public boolean deleteLog(SMSLog log);
+    public boolean removeAllLog();
+
 }

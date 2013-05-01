@@ -2,10 +2,6 @@ package com.gunnarro.android.smsfilter.domain;
 
 public class Setting {
 
-    public enum ConfigNameEnum {
-
-    }
-
     private String name;
     private String value;
 
@@ -20,5 +16,13 @@ public class Setting {
 
     public String getValue() {
         return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return this.name + " " + this.value;
     }
 }

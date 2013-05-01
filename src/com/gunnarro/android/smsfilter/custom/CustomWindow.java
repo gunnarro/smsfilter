@@ -16,9 +16,9 @@ public class CustomWindow extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-//        setContentView(R.layout.main);
+        // setContentView(R.layout.main);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.window_title_layout);
-//        title = (TextView) findViewById(R.id.title);
-//        icon = (ImageView) findViewById(R.id.icon);
+        // title = (TextView) findViewById(R.id.title);
+        // icon = (ImageView) findViewById(R.id.icon);
     }
 }

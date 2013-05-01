@@ -41,13 +41,11 @@
                 android:id="@+id/view_by_spinner"
                 android:layout_width="fill_parent"
                 android:prompt="@string/spinner_view_by" />
-
             <ImageButton
                 android:id="@+id/refresh_statistic_btn"
                 android:contentDescription="@string/na"
                 android:gravity="center_horizontal"
                 android:src="@drawable/table_refresh" />
-
             <ImageButton
                 android:id="@+id/delete_statistic_btn"
                 android:contentDescription="@string/na"

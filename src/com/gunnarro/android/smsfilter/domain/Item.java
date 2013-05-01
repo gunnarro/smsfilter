@@ -52,29 +52,6 @@ public class Item {
         this.fkFilterId = fkFilterId;
     }
 
-    /**
-     * Creates a Item object from a string of type:value:enabled pair.
-     * 
-     * @param s string:string:boolean pair, f.example type:22334455;true
-     * @return
-     */
-    public final static Item createItem(String s) {
-        if (s == null || s.equals("")) {
-            return null;
-        }
-        String[] split = s.split(":");
-        if (split.length != 3) {
-            return null;
-        }
-        String type = split[0];
-        String value = split[1];
-        if (split[2].equalsIgnoreCase(Boolean.TRUE.toString()) || split[2].equalsIgnoreCase(Boolean.FALSE.toString())) {
-            boolean enabled = Boolean.parseBoolean(split[2]);
-            return new Item(0, 0, value, enabled);
-        }
-        return null;
-    }
-
     @Override
     public int hashCode() {
         final int multiplier = 23;
@@ -102,8 +79,12 @@ public class Item {
         return false;
     }
 
+    /**
+     * The toString method is called by the ArrayAdapter in the
+     * CommonListFragment, which value is viewed in the list.
+     */
     @Override
     public String toString() {
-        return value + ":" + isEnabled;
+        return value;
     }
 }

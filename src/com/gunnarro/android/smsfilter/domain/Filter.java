@@ -67,6 +67,6 @@ public class Filter {
      */
     @Override
     public String toString() {
-        return id + ", " + name + ", " + isActivated;
+        return (id != null ? id + ", " : "") + name + ", " + isActivated;
     }
 }

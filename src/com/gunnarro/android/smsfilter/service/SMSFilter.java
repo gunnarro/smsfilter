@@ -1,12 +1,17 @@
 package com.gunnarro.android.smsfilter.service;
 
+import java.util.Calendar;
+
 import android.content.Context;
 import android.util.Log;
 
+import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
 
+@Deprecated
 public class SMSFilter {
 
     private FilterService filterService;
@@ -57,28 +62,21 @@ public class SMSFilter {
             // Check contact list
             isBlocked = false;
         } else if (activeFilterType.isBlackList()) {
-            Item item = filterService.searchList(activeFilterType.filterType, phoneNumber);
+            Item item = filterService.searchList(activeFilterType.name(), phoneNumber);
             if (item != null && item.isEnabled()) {
                 isBlocked = true;
             }
         } else if (activeFilterType.isWhiteList()) {
-            Item item = filterService.searchList(activeFilterType.filterType, phoneNumber);
+            Item item = filterService.searchList(activeFilterType.name(), phoneNumber);
             if (item == null || (item != null && !item.isEnabled())) {
                 isBlocked = true;
             }
         }
         if (isBlocked) {
-            logBlockedSMS(phoneNumber);
+            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, SMSLog.STATUS_SMS_BLOCKED, activeFilterType.name()));
         }
-        Log.d(this.getClass().getSimpleName(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
+        CustomLog.d(this.getClass(), "Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
         return isBlocked;
-    }
-
-    // FIXME
-    private void logBlockedSMS(String phoneNumber) {
-        String blockedSMS = System.currentTimeMillis() + ":" + phoneNumber;
-        // filterService.updateList("SMS_BLOCKED_LOG", new Item(blockedSMS,
-        // true));
     }
 
     /**
@@ -88,21 +86,7 @@ public class SMSFilter {
      * @return selected filter type
      */
     private FilterTypeEnum getActiveFilterType() {
-        String filterType = filterService.getValue(FilterService.SMS_ACTIVE_FILTER_TYPE);
-        try {
-            return FilterTypeEnum.valueOf(filterType);
-        } catch (Exception e) {
-            Log.e(this.getClass().getSimpleName(), "Filtertype not found for:" + filterType, e);
-            return null;
-        }
+        return filterService.getActiveFilterType();
     }
 
-    /**
-     * For unit testing only
-     * 
-     * @param appPreferences
-     */
-    public void setAppPreferences(FilterService appPreferences) {
-        this.filterService = appPreferences;
-    }
 }

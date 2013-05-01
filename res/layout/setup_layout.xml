@@ -31,13 +31,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/info" >
-
+		<!-- 
         <RadioButton
             android:id="@+id/radio_allow_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/radio_allow_all" />
-
+		 -->
         <RadioButton
             android:id="@+id/radio_contacts"
             android:layout_width="wrap_content"

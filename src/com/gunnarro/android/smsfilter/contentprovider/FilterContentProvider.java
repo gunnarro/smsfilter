@@ -23,6 +23,7 @@ import com.gunnarro.android.smsfilter.repository.table.FilterTable;
  * @author gunnarro
  * 
  */
+@Deprecated
 public class FilterContentProvider extends ContentProvider {
 
     public static final String AUTHORITY = FilterContentProvider.class.getPackage().getName();

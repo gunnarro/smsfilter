@@ -3,23 +3,16 @@ package com.gunnarro.android.smsfilter.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.ListFragment;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Item;
 import com.gunnarro.android.smsfilter.service.FilterService;
@@ -51,18 +44,8 @@ public class CommonListFragment extends ListFragment {
      * {@inheritDoc}
      */
     @Override
-    public void onPause() {
-//        this.filterService.close();
-        super.onPause();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void onResume() {
         // onResume happens after onStart and onActivityCreate
-//        this.filterService.open();
         initListView();
         super.onResume();
     }
@@ -97,7 +80,6 @@ public class CommonListFragment extends ListFragment {
             CustomLog.i(this.getClass(), " value=" + item.toValuePair() + " checked=" + checked);
         }
         item.setEnabled(checked);
-        // filterService.updateList(type, item);
         filterService.updateItem(item);
         CustomLog.d(this.getClass(), "onclick local:" + item.toValuePair());
         reloadDataSet();
@@ -106,25 +88,14 @@ public class CommonListFragment extends ListFragment {
     }
 
     private void initListView() {
-        StringBuffer sb = new StringBuffer();
         // Have to init. the check boxes upon loading
         for (int position = 0; position < adapter.getCount(); position++) {
             super.getListView().setItemChecked(position, adapter.getItem(position).isEnabled());
-            // CustomLog.d(this.getClass(), "smsitem adapter: " +
-            // adapter.getItem(position).toValuePair());
-            // CustomLog.d(this.getClass(), "smsitem local  : " +
-            // localList.get(position).toValuePair());
-            // sb.append("adapter:").append(adapter.getItem(position).toValuePair()).append("\n");
-            // sb.append("local  :").append(localList.get(position).toValuePair()).append("\n");
         }
-        // Toast.makeText(MainActivity.appContext, sb.toString(),
-        // Toast.LENGTH_LONG).show();
     }
 
     protected void setFilterService(FilterService filterService) {
         this.filterService = filterService;
-        // have to open the repository before initialization the list with data.
-//        filterService.open();
     }
 
     protected void setupEventHandlers(final View view) {
@@ -137,14 +108,12 @@ public class CommonListFragment extends ListFragment {
                     Item newItem = new Item(value, false);
                     if (addLocalList(newItem)) {
                         // Save the newly added item
-                        // filterService.updateList(type, newItem);
                         filterService.createItem(type, newItem);
                         reloadDataSet();
                     }
                     // Clear the input text field after every list insertion
                     inputField.setText("");
                 }
-                filterService.debugList(type);
             }
         });
 
@@ -158,15 +127,10 @@ public class CommonListFragment extends ListFragment {
                     if (checkedItemPositions.get(i)) {
                         Item item = localList.get(i);
                         adapter.remove(item);
-                        // filterService.removeList(type, item);
                         filterService.deleteItem(item);
                     }
                 }
-                // filterService.deleteItemAll(type);
-                // filterService.removeAllList(type);
-                // adapter.clear();
                 reloadDataSet();
-                filterService.debugList(type);
             }
         });
 
@@ -183,7 +147,6 @@ public class CommonListFragment extends ListFragment {
         adapter.notifyDataSetChanged();
         // then update items in the list view
         initListView();
-        filterService.debugList(type);
     }
 
     private boolean addLocalList(Item newItem) {
@@ -215,74 +178,67 @@ public class CommonListFragment extends ListFragment {
         this.inputFieldId = inputFieldId;
     }
 
-    private void addTestData() {
-        // FIXME Only for test purpose
-        filterService.createItem(type, new Item("+47*", false));
-        filterService.createItem(type, new Item("+46*", false));
-        filterService.createItem(type, new Item("+45*", false));
-        filterService.createItem(type, new Item("+4745465500*", false));
-    }
-
-    /**
-     * Custom array adapter class
-     * 
-     * @author gunnarro
-     * 
-     */
-    private class ItemArrayAdapter extends ArrayAdapter<Item> {
-
-        private Context context;
-        private ArrayList<Item> itemList;
-
-        public ItemArrayAdapter(Context context, int textViewResourceId, List<Item> itemList) {
-            super(context, textViewResourceId, itemList);
-            this.context = context;
-            this.itemList = new ArrayList<Item>();
-            this.itemList.addAll(itemList);
-        }
-
-        private class ViewHolder {
-            TextView text;
-            CheckBox checkBox;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            CustomLog.d(this.getClass(), String.valueOf(position));
-
-            if (convertView == null) {
-                LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-                convertView = inflater.inflate(R.layout.checkbox_list_layout, null);
-
-                holder = new ViewHolder();
-                holder.text = (TextView) convertView.findViewById(R.id.code);
-                holder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox1);
-                convertView.setTag(holder);
-
-                holder.checkBox.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        CheckBox cb = (CheckBox) v;
-                        Item item = (Item) cb.getTag();
-                        item.setEnabled(cb.isChecked());
-                        // Toast.makeText(getContext(), "Clicked on chbox: " +
-                        // item.toValuePair(), Toast.LENGTH_LONG).show();
-                    }
-                });
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            Item item = itemList.get(position);
-            holder.text.setText(item.getValue());
-            holder.checkBox.setChecked(item.isEnabled());
-            holder.checkBox.setTag(item);
-
-            return convertView;
-
-        }
-    }// end ItemArrayAdapter
+    // /**
+    // * Custom array adapter class
+    // *
+    // * @author gunnarro
+    // *
+    // */
+    // private class ItemArrayAdapter extends ArrayAdapter<Item> {
+    //
+    // private Context context;
+    // private ArrayList<Item> itemList;
+    //
+    // public ItemArrayAdapter(Context context, int textViewResourceId,
+    // List<Item> itemList) {
+    // super(context, textViewResourceId, itemList);
+    // this.context = context;
+    // this.itemList = new ArrayList<Item>();
+    // this.itemList.addAll(itemList);
+    // }
+    //
+    // private class ViewHolder {
+    // TextView text;
+    // CheckBox checkBox;
+    // }
+    //
+    // /**
+    // * {@inheritDoc}
+    // */
+    // @Override
+    // public View getView(int position, View convertView, ViewGroup parent) {
+    // ViewHolder holder = null;
+    // CustomLog.d(this.getClass(), String.valueOf(position));
+    //
+    // if (convertView == null) {
+    // LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+    // convertView = inflater.inflate(R.layout.checkbox_list_layout, null);
+    //
+    // holder = new ViewHolder();
+    // holder.text = (TextView) convertView.findViewById(R.id.code);
+    // holder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox1);
+    // convertView.setTag(holder);
+    //
+    // holder.checkBox.setOnClickListener(new View.OnClickListener() {
+    // public void onClick(View v) {
+    // CheckBox cb = (CheckBox) v;
+    // Item item = (Item) cb.getTag();
+    // item.setEnabled(cb.isChecked());
+    // // Toast.makeText(getContext(), "Clicked on chbox: " +
+    // // item.toValuePair(), Toast.LENGTH_LONG).show();
+    // }
+    // });
+    // } else {
+    // holder = (ViewHolder) convertView.getTag();
+    // }
+    //
+    // Item item = itemList.get(position);
+    // holder.text.setText(item.getValue());
+    // holder.checkBox.setChecked(item.isEnabled());
+    // holder.checkBox.setTag(item);
+    //
+    // return convertView;
+    //
+    // }
+    // }// end ItemArrayAdapter
 }

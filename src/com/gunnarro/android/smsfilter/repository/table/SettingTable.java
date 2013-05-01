@@ -10,13 +10,25 @@ import com.gunnarro.android.smsfilter.custom.CustomLog;
 
 public class SettingTable {
 
+    /**
+     * valid values are true or false only
+     */
+    public static String SMS_FILTER_ACTIVATED = "sms_filter_activated";
+
+    /**
+     * In order to turn on/off logging of incomming sms.
+     */
+    public static String LOG_SMS = "log_sms";
+
+    // public static String SMS_ACTIVE_FILTER_NAME = "sms_active_filter_name";
+
     // Database table
     public static final String TABLE_NAME = "settings";
     public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_KEY = "key";
     public static final String COLUMN_VALUE = "value";
 
-    public static String[] TABLE_COLUMNS = { COLUMN_ID, COLUMN_NAME, COLUMN_VALUE };
+    public static String[] TABLE_COLUMNS = { COLUMN_ID, COLUMN_KEY, COLUMN_VALUE };
 
     // Database creation SQL statement
     private static final StringBuffer DATABASE_CREATE_QUERY;
@@ -25,6 +37,7 @@ public class SettingTable {
         DATABASE_CREATE_QUERY.append("create table ");
         DATABASE_CREATE_QUERY.append(TABLE_NAME);
         DATABASE_CREATE_QUERY.append("(").append(COLUMN_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT");
+        DATABASE_CREATE_QUERY.append(",").append(COLUMN_KEY).append(" TEXT NOT NULL");
         DATABASE_CREATE_QUERY.append(",").append(COLUMN_VALUE).append(" TEXT NOT NULL);");
     }
 
@@ -50,9 +63,9 @@ public class SettingTable {
         }
     }
 
-    public static ContentValues createContentValues(String name, String value) {
+    public static ContentValues createContentValues(String key, String value) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_NAME, name);
+        values.put(COLUMN_KEY, key);
         values.put(COLUMN_VALUE, value);
         return values;
     }

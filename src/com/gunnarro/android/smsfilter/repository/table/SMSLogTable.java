@@ -1,6 +1,7 @@
 package com.gunnarro.android.smsfilter.repository.table;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 
 import android.content.ContentValues;
@@ -13,11 +14,12 @@ public class SMSLogTable {
     // Database table
     public static final String TABLE_NAME = "sms_log";
     public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_RECEIVED_DATE = "received_date";
+    public static final String COLUMN_RECEIVED_TIME = "received_time";
     public static final String COLUMN_PHONE_NUMBER = "phone_number";
     public static final String COLUMN_STATUS = "status";
+    public static final String COLUMN_FILTER_TYPE = "filter_type";
 
-    public static String[] TABLE_COLUMNS = { COLUMN_ID, COLUMN_RECEIVED_DATE, COLUMN_PHONE_NUMBER, COLUMN_STATUS };
+    public static String[] TABLE_COLUMNS = { COLUMN_ID, COLUMN_RECEIVED_TIME, COLUMN_PHONE_NUMBER, COLUMN_STATUS, COLUMN_FILTER_TYPE };
 
     // Database creation SQL statement
     private static final StringBuffer DATABASE_CREATE_QUERY;
@@ -26,9 +28,10 @@ public class SMSLogTable {
         DATABASE_CREATE_QUERY.append("create table ");
         DATABASE_CREATE_QUERY.append(TABLE_NAME);
         DATABASE_CREATE_QUERY.append("(").append(COLUMN_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT");
-        DATABASE_CREATE_QUERY.append(",").append(COLUMN_RECEIVED_DATE).append(" DATETIME");
+        DATABASE_CREATE_QUERY.append(",").append(COLUMN_RECEIVED_TIME).append(" INTEGER");
         DATABASE_CREATE_QUERY.append(",").append(COLUMN_PHONE_NUMBER).append(" TEXT NOT NULL");
-        DATABASE_CREATE_QUERY.append(",").append(COLUMN_STATUS).append(" TEXT NOT NULL);");
+        DATABASE_CREATE_QUERY.append(",").append(COLUMN_STATUS).append(" TEXT NOT NULL");
+        DATABASE_CREATE_QUERY.append(",").append(COLUMN_FILTER_TYPE).append(" TEXT NOT NULL);");
     }
 
     public static void onCreate(SQLiteDatabase database) {
@@ -53,11 +56,14 @@ public class SMSLogTable {
         }
     }
 
-    public static ContentValues createContentValues(String receivedDate, String phoneNumber, String status) {
+    public static ContentValues createContentValues(long receivedTime, String phoneNumber, String status, String filterType) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_RECEIVED_DATE, receivedDate);
+        // Note! date are stores as seconds since 1.1.1970
+        CustomLog.i(SMSLogTable.class, "date=" + new Date(receivedTime) + " receivedTimeMs=" + receivedTime + " receivedTime=" + (int) (receivedTime / 1000));
+        values.put(COLUMN_RECEIVED_TIME, (int) (receivedTime / 1000));
         values.put(COLUMN_PHONE_NUMBER, phoneNumber);
         values.put(COLUMN_STATUS, status);
+        values.put(COLUMN_FILTER_TYPE, filterType);
         return values;
     }
 

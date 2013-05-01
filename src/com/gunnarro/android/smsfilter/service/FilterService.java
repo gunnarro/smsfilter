@@ -2,68 +2,13 @@ package com.gunnarro.android.smsfilter.service;
 
 import java.util.List;
 
-import android.database.SQLException;
-
 import com.gunnarro.android.smsfilter.domain.Item;
-import com.gunnarro.android.smsfilter.domain.SMS;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
-import com.gunnarro.android.smsfilter.domain.Setting;
+import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
 
 public interface FilterService {
 
-    /** Holds current selected filter type */
-    public static final String SMS_FILTER_ACTIVATED = "sms_filter_activated";
-    public static final String SMS_ACTIVE_FILTER_TYPE = "sms_active_filter_type";
-
-    public static final String APP_SHARED_PREFS = "user_preferences";
     public static final String DEFAULT_VALUE = "";
-    public static final String SEPARATOR = ";";
-
-    /**
-     * Method to open repository starting leaving activity.
-     * 
-     * @throws SQLException
-     */
-//    public void open() throws SQLException;
-
-    /**
-     * Method to close repository when leaving or the activity is put on pause.
-     */
-//    public void close();
-
-    /**
-     * return the list items as a string, ref. getList(String type)
-     * 
-     * @param type
-     * @return
-     */
-    public abstract String getListAsString(String type);
-
-    /**
-     * Method remove all items from the list type.
-     * 
-     * @param type list type which holds the items.
-     * @return true if all items was successfully removed, false otherwise.
-     */
-    public abstract boolean removeAllList(String type);
-
-    /**
-     * Method to update a item in the given list type.
-     * 
-     * @param type list type which holds the item.
-     * @param item item to update
-     * @return true if the item was successfully updated, false otherwise.
-     */
-    public abstract boolean updateList(String type, Item item);
-
-    /**
-     * Method to remove a item from the given list type.
-     * 
-     * @param type list type which holds the item.
-     * @param item item to remove
-     * @return true if the item was removed, false otherwise.
-     */
-    public abstract boolean removeList(String type, Item item);
 
     /**
      * Method to search for a given value in a list.
@@ -75,29 +20,6 @@ public interface FilterService {
     public abstract Item searchList(String type, String value);
 
     /**
-     * Method to save a item to a resource type.
-     * 
-     * @param type
-     * @param value
-     */
-    public void save(String type, String value);
-
-    /**
-     * Method to read a single vale from a resourceF.
-     * 
-     * @param type
-     * @return
-     */
-    public String getValue(String type);
-
-    /**
-     * 
-     * @param groupBy
-     * @return
-     */
-    public List<SMS> getSMSList(String groupBy);
-
-    /**
      * Method to check if the phone number is blocked or not. If that's the
      * case, the SMS is ignored and only logged to the SMSFilters blocked log.
      * Otherwise, the SMS is handled as normal.
@@ -107,12 +29,9 @@ public interface FilterService {
      */
     public boolean isBlocked(String phoneNumber);
 
-    /**
-     * Tells whether the sms filter is activated or not.
-     * 
-     * @return true id activated, false otherwise
-     */
-    public boolean isSMSFilterActivated();
+    // ******************************************************
+    // Filter operations
+    // ******************************************************
 
     /**
      * Method to get active filter type, which is stored in the internal app
@@ -120,55 +39,19 @@ public interface FilterService {
      * 
      * @return selected filter type
      */
-    public Setting readActiveFilterType();
+    public FilterTypeEnum getActiveFilterType();
 
     /**
-     * Method to set active filter type. preference table.
+     * Method to activate filter type
      * 
      */
-    public boolean updateActiveFilterType(Setting activeFilter);
-
-    // ******************************************************
-    // Filter operations
-    // ******************************************************
+    public void activateFilterType(FilterTypeEnum filterType);
 
     /**
-     * Returns the list of item for the given list type. Allowed list types are
-     * as follows: <li>SMS_BLACK_LIST</li> <li>SMS_WHITE_LIST</li> <li>
-     * SMS_BLOCKED_LOG</li>
+     * Method to de-activate filter type
      * 
-     * @param type
-     * @return
      */
-    public List<Item> getFilterList(String type);
-
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean createFilter(Item item);
-
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean deleteFilter(Item item);
-
-    /**
-     * 
-     * @param filterName
-     * @return
-     */
-    public boolean deleteFilterAll(String filterName);
-
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean updateFilter(Item item);
+    public void deActivateFilterType(FilterTypeEnum filterType);
 
     // ******************************************************
     // Item operations
@@ -205,6 +88,15 @@ public interface FilterService {
     // Log operations
     // ******************************************************
 
+    public List<SMSLog> getLogsStartDateAndEndDate();
+
+    /**
+     * 
+     * @param groupBy
+     * @return
+     */
+    public List<SMSLog> getLogs(String groupBy);
+
     /**
      * 
      * @param item
@@ -217,7 +109,33 @@ public interface FilterService {
      * @param item
      * @return
      */
-    public boolean deleteLogAll();
+    public boolean removeAllLog();
 
-    public void debugList(String type);
+    // ******************************************************
+    // Settings operations
+    // ******************************************************
+
+    /**
+     * Tells whether the sms filter is activated or not.
+     * 
+     * @return true id activated, false otherwise
+     */
+    public boolean isSMSFilterActivated();
+
+    /**
+     * Method to turn sms filter on
+     */
+    public void activateSMSFilter();
+
+    /**
+     * Method to turn sms filter off
+     */
+    public void deactivateSMSFilter();
+
+    /**
+     * Method to check if all sms should be logged or not.
+     * 
+     * @return
+     */
+    public boolean isLogSMS();
 }

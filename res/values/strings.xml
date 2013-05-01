@@ -34,6 +34,7 @@
         <item>Week</item>
         <item>Day</item>
         <item>Number</item>
+        <item>Filter</item>
     </string-array>
     <string-array name="sms_sort_by_options">
         <item>Periode</item>
