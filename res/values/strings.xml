@@ -20,7 +20,6 @@
     <string name="sms_statistic">SMS</string>
     <string name="spinner_view_by">View by</string>
     <string name="spinner_sort_by">Sort by</string>
-    <string name="radio_allow_all">Allow all</string>
     <string name="radio_blacklist">Reject sms from phone number listed in blacklist</string>
     <string name="radio_whitelist">Allow sms from phone number listed in whitelist only</string>
     <string name="radio_contacts">Allow sms from contacts only</string>
@@ -44,7 +43,6 @@
     <string name="spinner_sms_filter_by">Filter sms by</string>
 
     <string-array name="spinner_sms_filter_options">
-        <item>Allow all</item>
         <item>Contacts</item>
         <item>BlackList</item>
         <item>WhiteList</item>

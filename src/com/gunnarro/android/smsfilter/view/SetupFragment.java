@@ -47,9 +47,6 @@ public class SetupFragment extends Fragment {
         RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radio_filter);
         CustomLog.d(this.getClass(), "selected filter:" + activeFilterType.name());
 
-        // if (activeFilterType.isAllowAll()) {
-        // radioGroup.check(R.id.radio_allow_all);
-        // } else
         if (activeFilterType.isBlackList()) {
             radioGroup.check(R.id.radio_blacklist);
         } else if (activeFilterType.isWhiteList()) {
@@ -57,7 +54,6 @@ public class SetupFragment extends Fragment {
         } else if (activeFilterType.isContacts()) {
             radioGroup.check(R.id.radio_contacts);
         } else {
-            // radioGroup.check(R.id.radio_allow_all);
             CustomLog.e(this.getClass(), "unkown type: " + activeFilterType.name());
         }
 
@@ -66,21 +62,16 @@ public class SetupFragment extends Fragment {
         boolean isActivated = filterService.isSMSFilterActivated();
         sw.setChecked(isActivated);
         // Set saved status for the radio buttons
-        disableRadioButtons(radioGroup, sw.isChecked());
+        setRadioButtonsStatus(radioGroup, sw.isChecked());
     }
 
     private void setupEventHandlers(final View view) {
-        // final RadioButton allowAllBtn = (RadioButton)
-        // view.findViewById(R.id.radio_allow_all);
         final RadioButton blacklistBtn = (RadioButton) view.findViewById(R.id.radio_blacklist);
         final RadioButton whitelistBtn = (RadioButton) view.findViewById(R.id.radio_whitelist);
         final RadioButton contactsBtn = (RadioButton) view.findViewById(R.id.radio_contacts);
         RadioGroup typeRG = (RadioGroup) view.findViewById(R.id.radio_filter);
         typeRG.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             public void onCheckedChanged(RadioGroup rg, int checkedId) {
-                // if (checkedId == allowAllBtn.getId()) {
-                // activateFilter(FilterServiceImpl.FilterTypeEnum.ALLOW_ALL);
-                // } else
                 if (checkedId == blacklistBtn.getId()) {
                     activateFilter(FilterServiceImpl.FilterTypeEnum.SMS_BLACK_LIST);
                 } else if (checkedId == whitelistBtn.getId()) {
@@ -90,6 +81,7 @@ public class SetupFragment extends Fragment {
                 } else {
                     CustomLog.e(this.getClass(), "unkown btnId: " + checkedId);
                 }
+                setRadioButtonsStatus(rg, true);
             }
         });
 
@@ -98,7 +90,7 @@ public class SetupFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 RadioGroup rg = (RadioGroup) view.findViewById(R.id.radio_filter);
-                disableRadioButtons(rg, isChecked);
+                setRadioButtonsStatus(rg, isChecked);
                 if (isChecked) {
                     filterService.activateSMSFilter();
                 } else {
@@ -116,14 +108,17 @@ public class SetupFragment extends Fragment {
         filterService.activateFilterType(selectedFilterType);
     }
 
-    private void disableRadioButtons(RadioGroup rg, boolean isDisabled) {
+    private void setRadioButtonsStatus(RadioGroup rg, boolean isEnableRadioGrp) {
         for (int i = 0; i < rg.getChildCount(); i++) {
             RadioButton radio = (RadioButton) rg.getChildAt(i);
-            radio.setEnabled(isDisabled);
-            if (!radio.isEnabled()) {
-                radio.setTextColor(getResources().getColor(R.color.txt_disabled));
-            } else {
+            radio.setEnabled(isEnableRadioGrp);
+            if (isEnableRadioGrp) {
                 radio.setTextColor(getResources().getColor(R.color.txt_radio));
+            } else {
+                radio.setTextColor(getResources().getColor(R.color.txt_radio_disabled));
+            }
+            if (radio.isChecked() && isEnableRadioGrp) {
+                radio.setTextColor(getResources().getColor(R.color.txt_radio_selected));
             }
         }
     }

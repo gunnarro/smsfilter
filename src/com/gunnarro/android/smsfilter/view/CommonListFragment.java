@@ -11,7 +11,6 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Item;
@@ -83,8 +82,8 @@ public class CommonListFragment extends ListFragment {
         filterService.updateItem(item);
         CustomLog.d(this.getClass(), "onclick local:" + item.toValuePair());
         reloadDataSet();
-        Toast.makeText(l.getContext(), "saved list: " + item.toString(), Toast.LENGTH_LONG).show();
-
+        // Toast.makeText(l.getContext(), "saved list: " + item.toString(),
+        // Toast.LENGTH_LONG).show();
     }
 
     private void initListView() {

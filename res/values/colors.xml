@@ -6,7 +6,10 @@
     <color name="txt_bg">#ffffff</color>
     <color name="txt_list_view">#00ccff</color>
     <color name="txt_disabled">#736F6E</color>
-    <color name="txt_radio">#33b5e5</color>
+    <color name="txt_radio_selected">#33b5e5</color>
+    <color name="txt_radio_disabled">#736F6E</color>
+    <color name="txt_radio">#ffffff</color>
+    <color name="txt_tab">#ffffff</color>
     <!-- background colors -->
     <color name="bg_default">#878787</color>
     <color name="bg_list_view">#000000</color>

@@ -13,6 +13,8 @@
         <item name="android:actionBarTabStyle">@style/CustomHoloActionBarTab</item>
         <!-- <item name="android:imageButtonStyle">@style/CustomButton</item> -->
         <!-- <item name="android:textViewStyle">@style/CustomTextView</item> -->
+        <!-- <item name="actionBarTabBarStyle">@style/Widget.Holo.ActionBar.TabBar</item> -->
+        <item name="android:actionBarTabTextStyle">@style/CustomActionBarTabTextStyle</item>
     </style>
 
     <style name="MyDefaultTextAppearance" parent="@android:style/TextAppearance">
@@ -21,20 +23,21 @@
         <item name="android:textStyle">normal</item>
     </style>
 
-    <style name="CustomTabWidget" parent="@android:style/Widget.TabWidget">
+    <style name="CustomTabWidget" parent="@android:style/Widget.Holo.TabWidget">
         <item name="android:textAppearance">@style/CustomTabWidgetText</item>
     </style>
 
     <style name="CustomTabWidgetText" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/dark_green</item>
     </style>
 
     <style name="CustomWindowTitleBackground">
         <item name="android:background">@color/bg_default</item>
     </style>
 
-    <style name="CustomRadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
+    <style name="CustomRadioButton" parent="@android:style/Widget.Holo.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textColor">@color/txt_radio</item>
@@ -96,6 +99,10 @@
         <item name="android:gravity">center</item>
         <!-- <item name="android:background">@drawable/tab_bg</item> -->
         <!-- <item name="android:textColor">@drawable/tab_txt</item> -->
+    </style>
+    
+    <style name="CustomActionBarTabTextStyle" parent="@android:style/Widget.Holo.ActionBar.TabText">
+        <item name="android:textColor">@drawable/tab_txt</item>
     </style>
 
 </resources>
