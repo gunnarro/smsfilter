@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gunnarro.android.smsfilter"
     android:versionCode="1"
-    android:versionName="1.0.0" >
+    android:versionName="1.0" >
 
     <uses-sdk
         android:maxSdkVersion="17"
@@ -11,8 +11,6 @@
 
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <!-- <uses-permission android:name="android.permission.BROADCAST_SMS"/> -->
-    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
@@ -22,23 +20,11 @@
         android:label="@string/app_name"
         android:logo="@drawable/black_list_agent"
         android:theme="@style/MyCustomTheme" >
-
-        <!--
-        <activity
-            android:name="com.gunnarro.android.smsfilter.view.FilterListViewActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        -->
         <activity
             android:name="com.gunnarro.android.smsfilter.view.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -46,23 +32,11 @@
         <receiver
             android:name="com.gunnarro.android.smsfilter.receiver.SMSHandler"
             android:enabled="true" >
+            <!-- Set a highest priority for the SMS filter handler in order to ensure it to be the first one to be executed -->
             <intent-filter android:priority="2147483647" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <!--
-        <activity
-            android:name="com.gunnarro.android.smsfilter.view.FilterViewActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize" >
-        </activity>
-        -->
-		<!-- 
-        <provider
-            android:name=".contentprovider.FilterContentProvider"
-            android:authorities="com.gunnarro.android.smsfilter.contentprovider" >
-        </provider>
-         -->
     </application>
-
 </manifest>
