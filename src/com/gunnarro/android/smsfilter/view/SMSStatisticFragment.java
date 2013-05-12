@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
@@ -64,7 +65,6 @@ public class SMSStatisticFragment extends Fragment {
         refreshButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                // addTestData();
                 updateSMSStatistic(statView);
             }
         });
@@ -111,6 +111,14 @@ public class SMSStatisticFragment extends Fragment {
         Date endDate = logsStartDateAndEndDate != null ? new Date(logsStartDateAndEndDate.get(1).getReceivedTime()) : Calendar.getInstance().getTime();
         int totalCount = 0;
         for (SMSLog sms : blockedSMSmsLogs) {
+            if (viewBy.equalsIgnoreCase("number")) {
+                // try to look up number in the contact in order to find the
+                // name
+                String contactName = filterService.lookUpContacts(sms.getKey());
+                if (contactName != null) {
+                    sms.setKey(contactName);
+                }
+            }
             totalCount += sms.getCount();
             table.addView(createTableRow(statView, sms.getKey(), sms.getCount(), table.getChildCount()));
         }
@@ -164,7 +172,7 @@ public class SMSStatisticFragment extends Fragment {
     // for testing only
     @Deprecated
     private void addTestData() {
-        this.filterService.createLog(new SMSLog(System.currentTimeMillis(), "11223344", SMSLog.STATUS_SMS_INCOMMING, "none"));
+        this.filterService.createLog(new SMSLog(System.currentTimeMillis(), "11223344", SMSLog.STATUS_SMS_RECEIVED, "none"));
     }
 
     /**

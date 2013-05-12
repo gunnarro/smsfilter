@@ -44,7 +44,7 @@ public class SMSHandler extends BroadcastReceiver {
         FilterService filterService = getFilterService(context);
         // log all received sms in order to present some statistic
         if (filterService.isLogSMS()) {
-            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_INCOMMING, null));
+            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
         }
         if (!filterService.isSMSFilterActivated()) {
             // CustomLog.i(this.getClass(), "SMS filter not activated!");

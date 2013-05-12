@@ -11,6 +11,14 @@ public interface FilterService {
     public static final String DEFAULT_VALUE = "";
 
     /**
+     * Method to search for name in the contact list for a given phone number
+     * 
+     * @param phoneNumber to find display name for
+     * @return contact display name
+     */
+    public String lookUpContacts(String phoneNumber);
+
+    /**
      * Method to search for a given value in a list.
      * 
      * @param type list type which holds the item.

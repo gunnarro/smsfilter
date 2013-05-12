@@ -1,16 +1,16 @@
 package com.gunnarro.android.smsfilter.domain;
 
 /**
- * Class for holding list items.
  * 
  * @author gunnarro
  * 
  */
 public class SMSLog {
 
-    public static final String STATUS_SMS_BLOCKED = "blocked";
-    public static final String STATUS_SMS_INCOMMING = "incomming";
+    public static final String STATUS_SMS_BLOCKED = "SMS_RECEIVED_BLOCKED";
+    public static final String STATUS_SMS_RECEIVED = "SMS_RECEIVED";
     private long receivedTime;
+    private String name;
     private String phoneNumber;
     private String status;
     private String filterType;
@@ -27,6 +27,10 @@ public class SMSLog {
         this.phoneNumber = phoneNumber;
         this.status = status;
         this.filterType = filterType;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public long getReceivedTime() {
@@ -64,8 +68,4 @@ public class SMSLog {
     public String toString() {
         return receivedTime + " " + phoneNumber + " " + status + " " + filterType;
     }
-    // 04-30 23:56:44.196:
-    // I/FilterServiceImpl.getLogsStartDateAndEndDate:247(936): [1367359004196
-    // 1554928872 45465500 blocked, 1367359004196 1554928872 45465503 blocked]
-
 }

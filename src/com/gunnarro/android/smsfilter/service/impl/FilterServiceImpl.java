@@ -5,6 +5,10 @@ import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Filter;
@@ -24,6 +28,7 @@ import com.gunnarro.android.smsfilter.service.FilterService;
 public class FilterServiceImpl implements FilterService {
 
     private FilterRepository filterRepository;
+    private Context context;
 
     public enum FilterTypeEnum {
         ALLOW_ALL, SMS_BLACK_LIST, SMS_WHITE_LIST, CONTACTS;
@@ -54,7 +59,8 @@ public class FilterServiceImpl implements FilterService {
         // The repository is opened and closed by the activity that use the
         // filter service. Which is done in the onPause() and onResume() methods
         // of the activity.
-        this.filterRepository = new FilterRepositoryImpl(context);
+        this.context = context;
+        this.filterRepository = new FilterRepositoryImpl(this.context);
         this.filterRepository.open();
     }
 
@@ -130,9 +136,10 @@ public class FilterServiceImpl implements FilterService {
             // wide open for everyone
             isBlocked = false;
         } else if (activeFilterType.isContacts()) {
-            // TODO
             // Check contact list
-            isBlocked = false;
+            if (!isInContactList(phoneNumber)) {
+                isBlocked = true;
+            }
         } else if (activeFilterType.isBlackList()) {
             Item item = searchList(activeFilterType.name(), phoneNumber);
             if (item != null && item.isEnabled()) {
@@ -153,6 +160,31 @@ public class FilterServiceImpl implements FilterService {
 
     private void logBlockedSMS(String phoneNumber, String filterType) {
         filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, SMSLog.STATUS_SMS_BLOCKED, filterType));
+    }
+
+    private boolean isInContactList(String phoneNumber) {
+        return lookUpContacts(phoneNumber) != null ? true : false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String lookUpContacts(String phoneNumber) {
+        String contactDisplayName = null;
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+        String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
+        // Query the filter URI
+        Cursor cursor = this.context.getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                contactDisplayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+            }
+            cursor.close();
+        }
+        // Toast.makeText(context, "contact: " + contactDisplayName +
+        // ", number:" + phoneNumber, Toast.LENGTH_LONG).show();
+        return contactDisplayName;
     }
 
     /**
