@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -20,7 +21,6 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
@@ -32,7 +32,7 @@ public class SMSStatisticFragment extends Fragment {
 
     protected FilterService filterService;
     private String viewBy = "Year";
-    private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss", Locale.US);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -50,7 +50,7 @@
                 android:id="@+id/delete_statistic_btn"
                 android:contentDescription="@string/na"
                 android:gravity="center_horizontal"
-                android:src="@drawable/table_row_delete" />
+                android:src="@drawable/table_delete" />
         </TableRow>
 
         <TableRow

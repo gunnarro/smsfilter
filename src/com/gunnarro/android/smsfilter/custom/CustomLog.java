@@ -9,7 +9,7 @@ public class CustomLog {
     }
 
     public static void d(Class<?> clazz, String msg) {
-        Log.i(createTag(clazz), msg);
+        Log.d(createTag(clazz), msg);
     }
 
     public static void e(Class<?> clazz, String msg) {
@@ -18,8 +18,6 @@ public class CustomLog {
 
     private static String createTag(Class<?> clazz) {
         StringBuffer tag = new StringBuffer();
-        // tag.append(DateFormat.getDateInstance(DateFormat.MEDIUM,
-        // Locale.ENGLISH).format(new Date())).append(" ");
         for (StackTraceElement stackTrace : Thread.currentThread().getStackTrace()) {
             if (stackTrace.getClassName().equals(clazz.getName())) {
                 tag.append(clazz.getSimpleName()).append(".").append(stackTrace.getMethodName()).append(":").append(stackTrace.getLineNumber());
@@ -28,5 +26,4 @@ public class CustomLog {
         }
         return tag.toString();
     }
-
 }

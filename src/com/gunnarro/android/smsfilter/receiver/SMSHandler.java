@@ -15,8 +15,6 @@ import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
 public class SMSHandler extends BroadcastReceiver {
 
-    // public final static String KEY_SMS_MSG = "message";
-    // public final static String KEY_MOBILE_NUMBER = "mobilenumber";
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
 
     private static FilterService filterService = null;
@@ -30,7 +28,6 @@ public class SMSHandler extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
-        CustomLog.i(this.getClass(), "Handle incomming sms...");
         if (bundle != null) {
             if (intent.getAction().equals(SMS_RECEIVED)) {
                 handleSMS(context, bundle);
@@ -47,7 +44,6 @@ public class SMSHandler extends BroadcastReceiver {
             filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
         }
         if (!filterService.isSMSFilterActivated()) {
-            // CustomLog.i(this.getClass(), "SMS filter not activated!");
             return;
         }
         Object[] pdus = (Object[]) bundle.get("pdus");

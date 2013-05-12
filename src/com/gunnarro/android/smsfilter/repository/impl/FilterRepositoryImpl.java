@@ -66,6 +66,9 @@ public class FilterRepositoryImpl implements FilterRepository {
             cursor.moveToFirst();
             setting = mapCursorToSetting(cursor);
         }
+        if (setting == null) {
+            throw new RuntimeException("DB not initialize! Please report bug!");
+        }
         // Make sure to close the cursor
         cursor.close();
         CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());

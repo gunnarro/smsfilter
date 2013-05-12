@@ -5,33 +5,34 @@ We will here give an short explanation of how to use the SMS filter by examples.
 Generally
 
 You activate the SMS filter by setting the switch button to 'On' under the Setup tab.
-You deactive the filer by setting it to 'Off'. By default the filter is turned off.
-All options under the Setup tab will be disable when the filter is dectivated.
+You deactivate the filter by setting it to 'Off'. By default the filter is turned off.
+All options under the Setup tab will be disable when the filter is deactivated.
 
-Under the Setup tab you can select wanted filter.
-The blacklist tab will be deactivated when the whitelist option is selected.
-And the whitelist tab will be deactivated when the blacklist option is selected.
+Under the Setup tab you can select wanted filter or simple turn the filter off.
 
 The filter support wild card in the phone numbers.
 For example, following expression +4792*, will match all number that starts with +4792.
 
+Access
+This application require access to the following data on out phone:
+	- Contacts
+	- SMS read and receive
+
 
 WhiteList
 By default no number is white listed.
-You activate whitelist by select 'Allow sms from phone numbers listed in whitelist only.' under the Setup tab.
-The blacklist tab will be deactivated when the whitelist option is selected.
-In order to white list a phone number you must add actual number to the white list, and then mark it.
-Then, only SMS from this number will slip through the filter.
+You activate whitelist by select 'Allow sms from phonenumbers listed in whitelist only.' under the Setup tab.
+In order to whitelist a phone number you must add actual number to the whitelist, and then mark it.
+Then, only SMS from this number will pass through the filter.
 
-Note that an empty whitelist will actually block all incoming SMS.
+Note! that an empty whitelist will actually block all incoming SMS.
 
-For example, adding +47* will allow phone numbers from Norway only.
+For example, adding +47* will allow phonenumbers from Norway only.
 
 BlackList
 By default no number is black listed.
 You activate blacklist by select 'Reject sms from phone numbers listed in blacklist' under the Setup tab.
-The whitelist tab will be deactivated when the blacklist option is selected.
-In order to black list a phone number you must add actual number to the black list, and then mark it.
+In order to black list a phonenumber you must add actual number to the blacklist, and then mark it.
 later, you can simply, unmark it, if you do not want to black list this phone number anymore.
 
 For example, adding +45*, and mark it, will block all received sms form Denmark.
@@ -41,11 +42,19 @@ From here you can view history over all blocked sms by simply click on the refre
 The delete button will remove all history. Note that this operation cannot be recovered.
 
 Testing
-This application has been tested for the following devices and Android OS versions:
+We have only tested SMS filter with the the default Android SMS application installed.
+If another SMS applications is installed this may cause that for the SMS filter is not executed
+first. That means the incoming SMS may be picked up before it has passed the SMS filter.
+With the result that the incoming SMS is not blocked by the filter anymore.
 
-Device				OS
-------------------------------------
-Samsung Galaxy 2	Android 4.2.2
+This application has been tested for the following devices and Android OS and Kernel versions:
+
+Device							OS				Kernel
+---------------------------------------------------------------
+Samsung Galaxy 2 GT-i9100	Android 4.1.2		3.0.31-1071752
+												3.0.31-1156082
 
 
+Contact
+Email: gunnar.ronneberg@gmail.com
  

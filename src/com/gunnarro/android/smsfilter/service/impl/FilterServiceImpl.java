@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Filter;
@@ -182,8 +181,6 @@ public class FilterServiceImpl implements FilterService {
             }
             cursor.close();
         }
-        // Toast.makeText(context, "contact: " + contactDisplayName +
-        // ", number:" + phoneNumber, Toast.LENGTH_LONG).show();
         return contactDisplayName;
     }
 

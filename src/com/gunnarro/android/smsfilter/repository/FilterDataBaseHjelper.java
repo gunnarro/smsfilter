@@ -14,7 +14,7 @@ import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeE
 public class FilterDataBaseHjelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "smsfilter.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 1;
 
     private static FilterDataBaseHjelper instance = null;
 
@@ -65,7 +65,9 @@ public class FilterDataBaseHjelper extends SQLiteOpenHelper {
         ItemTable.onUpgrade(database, oldVersion, newVersion);
         SMSLogTable.onUpgrade(database, oldVersion, newVersion);
         SettingTable.onUpgrade(database, oldVersion, newVersion);
-        insertDefaultData(database);
+        // insertDefaultData(database);
+        // for testing only
+        // insertTestData(database);
         CustomLog.i(this.getClass(), "upgraded DB tables");
 
     }
@@ -79,21 +81,26 @@ public class FilterDataBaseHjelper extends SQLiteOpenHelper {
         database.execSQL("insert into filters (_id, filter_name, activated) values(1,'" + FilterTypeEnum.SMS_BLACK_LIST.name() + "','true')");
         database.execSQL("insert into filters (_id, filter_name, activated) values(2,'" + FilterTypeEnum.SMS_WHITE_LIST.name() + "','false')");
         database.execSQL("insert into filters (_id, filter_name, activated) values(3,'" + FilterTypeEnum.CONTACTS.name() + "','false')");
+        CustomLog.i(this.getClass(), "inserted default test data");
+    }
 
-        // insert test data
+    /**
+     * For testing only
+     * 
+     * @param database
+     */
+    private void insertTestData(SQLiteDatabase database) {
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(1," + (System.currentTimeMillis() / 1000)
-                + ", '45465500', 'blocked', '" + FilterTypeEnum.SMS_WHITE_LIST.name() + "')");
+                + ", '45465504', 'blocked', '" + FilterTypeEnum.SMS_WHITE_LIST.name() + "')");
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(2," + (System.currentTimeMillis() / 1000)
                 + ", '45465501', 'blocked', '" + FilterTypeEnum.SMS_WHITE_LIST.name() + "')");
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(3," + (System.currentTimeMillis() / 1000)
-                + ", '45465500', 'blocked', '" + FilterTypeEnum.CONTACTS.name() + "')");
+                + ", '45465504', 'blocked', '" + FilterTypeEnum.CONTACTS.name() + "')");
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(4," + (System.currentTimeMillis() / 1000)
-                + ", '45465500', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "')");
+                + ", '45465504', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "')");
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(5," + System.currentTimeMillis() / 1000
                 + ", '45465501', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "')");
         database.execSQL("insert into sms_log (_id, received_time, phone_number, status, filter_type) values(6," + System.currentTimeMillis() / 1000
                 + ", '45465503', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "')");
-
-        CustomLog.i(this.getClass(), "inserted default data");
     }
 }

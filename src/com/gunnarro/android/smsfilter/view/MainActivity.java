@@ -59,11 +59,11 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.menuitem_help:
-            Toast.makeText(appContext, "help", Toast.LENGTH_SHORT).show();
-            return true;
+        // case R.id.menuitem_help:
+        // Toast.makeText(appContext, "help", Toast.LENGTH_SHORT).show();
+        // return true;
         case R.id.menuitem_about:
-            Toast.makeText(appContext, "about", Toast.LENGTH_SHORT).show();
+            Toast.makeText(appContext, R.string.app_about, Toast.LENGTH_SHORT).show();
             return true;
         case R.id.menuitem_quit:
             finish();
