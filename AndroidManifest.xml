@@ -11,6 +11,7 @@
 
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
@@ -38,5 +39,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.gunnarro.android.smsfilter.receiver.MMSHandler"
+            android:enabled="true" >
+            <!-- Set a highest priority for the MMS filter handler in order to ensure it to be the first one to be executed -->
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.provider.Telephony.WAP_PUSH_RECEIVED" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
     </application>
+
 </manifest>
