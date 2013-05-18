@@ -29,7 +29,7 @@ public class MMSHandler extends MessageHandler {
         if (isMMS(intent)) {
             handleMMS(context, bundle);
         } else {
-            CustomLog.i(this.getClass(), "This was not an mms: action=" + intent.getAction() + " type=" + intent.getType());
+            CustomLog.i(MMSHandler.class, "This was not an mms: action=" + intent.getAction() + " type=" + intent.getType());
         }
     }
 
@@ -49,21 +49,23 @@ public class MMSHandler extends MessageHandler {
     private void handleMMS(Context context, Bundle bundle) {
         FilterService filterService = getFilterService(context);
         // log all received sms in order to present some statistic
-        if (filterService.isLogSMS()) {
+        if (filterService.isLogMsg()) {
             filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
         }
-        if (!filterService.isSMSFilterActivated()) {
+        if (!filterService.isMsgFilterActivated()) {
             return;
         }
         String phoneNumber = null;
         byte[] data = bundle.getByteArray("data");
         String buffer = new String(data);
+        // FIXME: This will also filter out hidden numbers, i.e they will not be
+        // blocked
         Pattern pattern = Pattern.compile("[0-9,+]{8,19}");
         Matcher matcher = pattern.matcher(buffer);
         if (matcher.find()) {
             phoneNumber = matcher.group();
             Toast.makeText(context, "MMS filter number!" + phoneNumber, Toast.LENGTH_LONG).show();
-            filter(phoneNumber);
+            super.filter(phoneNumber);
         } else {
             Toast.makeText(context, "No phonenumber found in MMS data part!" + buffer, Toast.LENGTH_LONG).show();
         }

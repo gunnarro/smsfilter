@@ -36,7 +36,7 @@ public interface FilterRepository {
      * 
      * @return true if the filter is activated, false otherwise
      */
-    public boolean isSMSFilterActivated();
+    public boolean isMsgFilterActivated();
 
     /**
      * Method to activate or deactivate the sms filter.
@@ -49,7 +49,7 @@ public interface FilterRepository {
      * 
      * @return
      */
-    public boolean isLogSMS();
+    public boolean isLogMsg();
 
     // ******************************************************
     // Filter operations

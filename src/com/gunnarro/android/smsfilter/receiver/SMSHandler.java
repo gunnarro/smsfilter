@@ -25,7 +25,7 @@ public class SMSHandler extends MessageHandler {
             if (intent.getAction().equals(SMS_RECEIVED)) {
                 handleSMS(context, bundle);
             } else {
-                CustomLog.i(this.getClass(), "This was not an sms: action=" + intent.getAction() + " type=" + intent.getType());
+                CustomLog.i(SMSHandler.class, "This was not an sms: action=" + intent.getAction() + " type=" + intent.getType());
             }
         }
     }
@@ -39,17 +39,17 @@ public class SMSHandler extends MessageHandler {
     private void handleSMS(Context context, Bundle bundle) {
         FilterService filterService = getFilterService(context);
         // log all received sms in order to present some statistic
-        if (filterService.isLogSMS()) {
+        if (filterService.isLogMsg()) {
             filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
         }
-        if (!filterService.isSMSFilterActivated()) {
+        if (!filterService.isMsgFilterActivated()) {
             return;
         }
         Object[] pdus = (Object[]) bundle.get("pdus");
         SmsMessage[] msgs = new SmsMessage[pdus.length];
         for (int i = 0; i < msgs.length; i++) {
             msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-            filter(msgs[i].getOriginatingAddress());
+            super.filter(msgs[i].getOriginatingAddress());
         }
     }
 }

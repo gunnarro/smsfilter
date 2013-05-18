@@ -59,7 +59,7 @@ public class SetupFragment extends Fragment {
 
         // Read and set correct status for the activated filter switch
         Switch sw = (Switch) view.findViewById(R.id.sms_filter_on_off_switch);
-        boolean isActivated = filterService.isSMSFilterActivated();
+        boolean isActivated = filterService.isMsgFilterActivated();
         sw.setChecked(isActivated);
         // Set saved status for the radio buttons
         setRadioButtonsStatus(radioGroup, sw.isChecked());

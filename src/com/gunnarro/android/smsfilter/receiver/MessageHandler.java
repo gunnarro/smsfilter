@@ -8,6 +8,12 @@ import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
+/**
+ * Generic abstract class for handling incoming SMS and MMS.
+ * 
+ * @author gunnarro
+ * 
+ */
 public abstract class MessageHandler extends BroadcastReceiver {
 
     private static FilterService filterService = null;

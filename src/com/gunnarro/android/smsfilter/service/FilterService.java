@@ -18,16 +18,7 @@ public interface FilterService {
      */
     public String lookUpContacts(String phoneNumber);
 
-    /**
-     * Method to search for a given value in a list.
-     * 
-     * @param type list type which holds the item.
-     * @param value value to search after
-     * @return true if the list contains the item, false otherwise.
-     */
-    public abstract Item searchList(String type, String value);
-
-    /**
+   /**
      * Method to check if the phone number is blocked or not. If that's the
      * case, the SMS is ignored and only logged to the SMSFilters blocked log.
      * Otherwise, the SMS is handled as normal.
@@ -128,7 +119,7 @@ public interface FilterService {
      * 
      * @return true id activated, false otherwise
      */
-    public boolean isSMSFilterActivated();
+    public boolean isMsgFilterActivated();
 
     /**
      * Method to turn sms filter on
@@ -145,5 +136,5 @@ public interface FilterService {
      * 
      * @return
      */
-    public boolean isLogSMS();
+    public boolean isLogMsg();
 }

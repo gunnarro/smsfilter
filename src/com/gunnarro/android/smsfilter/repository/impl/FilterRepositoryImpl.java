@@ -55,7 +55,7 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public boolean isSMSFilterActivated() {
+    public boolean isMsgFilterActivated() {
         Setting setting = null;
         String selection = SettingTable.COLUMN_KEY + " LIKE ?";
         String[] selectionArgs = { SettingTable.SMS_FILTER_ACTIVATED };
@@ -94,7 +94,7 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public boolean isLogSMS() {
+    public boolean isLogMsg() {
         Setting setting = null;
         String selection = SettingTable.COLUMN_KEY + " LIKE ?";
         String[] selectionArgs = { SettingTable.LOG_SMS };
@@ -427,4 +427,5 @@ public class FilterRepositoryImpl implements FilterRepository {
         return new SMSLog(received_time_ms, cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_PHONE_NUMBER)), cursor.getString(cursor
                 .getColumnIndex(SMSLogTable.COLUMN_STATUS)), cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_FILTER_TYPE)));
     }
+    
 }

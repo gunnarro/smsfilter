@@ -30,11 +30,7 @@ public class FilterServiceImpl implements FilterService {
     private Context context;
 
     public enum FilterTypeEnum {
-        ALLOW_ALL, SMS_BLACK_LIST, SMS_WHITE_LIST, CONTACTS;
-
-        public boolean isAllowAll() {
-            return this.equals(FilterTypeEnum.ALLOW_ALL);
-        }
+        SMS_BLACK_LIST, SMS_WHITE_LIST, CONTACTS;
 
         public boolean isContacts() {
             return this.equals(FilterTypeEnum.CONTACTS);
@@ -51,6 +47,12 @@ public class FilterServiceImpl implements FilterService {
     }
 
     /**
+     * default constructor, used for unit testing only.
+     */
+    public FilterServiceImpl() {
+    }
+
+    /**
      * 
      * @param context
      */
@@ -63,24 +65,32 @@ public class FilterServiceImpl implements FilterService {
         this.filterRepository.open();
     }
 
-    private static String createSearch(String value) {
+    public static String createSearch(String value) {
+        if (value.isEmpty()) {
+            return "";
+        }
         String filter = "^" + value.replace("*", "") + ".*";
         if (value.startsWith("+")) {
             filter = "^\\" + value.replace("*", "") + ".*";
+        } else if (value.startsWith("hidden")) {
+            filter = "[0-9,+]";
         }
         return filter;
     }
 
     /**
-     * {@inheritDoc}
+     * Method to search for a given value in a list.
+     * 
+     * @param type list type which holds the item.
+     * @param value value to search after
+     * @return true if the list contains the item, false otherwise.
      */
-    @Override
-    public Item searchList(String type, String value) {
+    private Item searchList(String type, String value) {
         List<Item> itemList = filterRepository.getItemList(type);
         for (Item item : itemList) {
             String filter = createSearch(item.getValue());
             if (value.matches(filter)) {
-                CustomLog.i(this.getClass(), "HIT value=" + value + ", filter=" + filter);
+                CustomLog.i(FilterServiceImpl.class, "HIT value=" + value + ", filter=" + filter);
                 return item;
             }
         }
@@ -91,16 +101,16 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
-    public boolean isLogSMS() {
-        return this.filterRepository.isLogSMS();
+    public boolean isLogMsg() {
+        return this.filterRepository.isLogMsg();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isSMSFilterActivated() {
-        return this.filterRepository.isSMSFilterActivated();
+    public boolean isMsgFilterActivated() {
+        return this.filterRepository.isMsgFilterActivated();
     }
 
     /**
@@ -127,14 +137,11 @@ public class FilterServiceImpl implements FilterService {
         boolean isBlocked = false;
         FilterTypeEnum activeFilterType = getActiveFilterType();
         if (activeFilterType == null) {
-            CustomLog.e(this.getClass(), "isBlocked(): BUG: filter type not found, do not block sms!");
+            CustomLog.e(FilterServiceImpl.class, "isBlocked(): BUG: filter type not found, do not block sms!");
             return false;
         }
 
-        if (activeFilterType.isAllowAll()) {
-            // wide open for everyone
-            isBlocked = false;
-        } else if (activeFilterType.isContacts()) {
+        if (activeFilterType.isContacts()) {
             // Check contact list
             if (!isInContactList(phoneNumber)) {
                 isBlocked = true;
@@ -151,13 +158,13 @@ public class FilterServiceImpl implements FilterService {
             }
         }
         if (isBlocked) {
-            logBlockedSMS(phoneNumber, activeFilterType.name());
+            logBlockedMsg(phoneNumber, activeFilterType.name(), "msgType");
         }
-        CustomLog.d(this.getClass(), ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
+        CustomLog.d(FilterServiceImpl.class, ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
         return isBlocked;
     }
 
-    private void logBlockedSMS(String phoneNumber, String filterType) {
+    private void logBlockedMsg(String phoneNumber, String filterType, String msgType) {
         filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, SMSLog.STATUS_SMS_BLOCKED, filterType));
     }
 
@@ -205,7 +212,7 @@ public class FilterServiceImpl implements FilterService {
         if (filterType != null) {
             filterRepository.updateFilter(new Filter(filterType.name(), true));
         } else {
-            CustomLog.e(this.getClass(), "BUG! Filter type was null!");
+            CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
         }
     }
 
@@ -217,7 +224,7 @@ public class FilterServiceImpl implements FilterService {
         if (filterType != null) {
             filterRepository.updateFilter(new Filter(filterType.name(), false));
         } else {
-            CustomLog.e(this.getClass(), "BUG! Filter type was null!");
+            CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
         }
     }
 
@@ -311,6 +318,13 @@ public class FilterServiceImpl implements FilterService {
     @Override
     public boolean removeAllLog() {
         return filterRepository.removeAllLog();
+    }
+
+    /**
+     * for unit testing only
+     */
+    public void setFilterRepository(FilterRepository filterRepository) {
+        this.filterRepository = filterRepository;
     }
 
 }
