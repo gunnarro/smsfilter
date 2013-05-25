@@ -3,7 +3,8 @@ package com.gunnarro.android.smsfilter.service;
 import java.util.List;
 
 import com.gunnarro.android.smsfilter.domain.Item;
-import com.gunnarro.android.smsfilter.domain.SMSLog;
+import com.gunnarro.android.smsfilter.domain.Msg;
+import com.gunnarro.android.smsfilter.domain.MsgLog;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
 
 public interface FilterService {
@@ -18,15 +19,15 @@ public interface FilterService {
      */
     public String lookUpContacts(String phoneNumber);
 
-   /**
+    /**
      * Method to check if the phone number is blocked or not. If that's the
      * case, the SMS is ignored and only logged to the SMSFilters blocked log.
      * Otherwise, the SMS is handled as normal.
      * 
-     * @param phoneNumber
+     * @param msg the message to check
      * @return true if the phone number is blocked false otherwise.
      */
-    public boolean isBlocked(String phoneNumber);
+    public boolean isBlocked(Msg msg);
 
     // ******************************************************
     // Filter operations
@@ -87,28 +88,28 @@ public interface FilterService {
     // Log operations
     // ******************************************************
 
-    public List<SMSLog> getLogsStartDateAndEndDate();
+    public List<MsgLog> getLogsStartDateAndEndDate();
 
     /**
      * 
      * @param groupBy
      * @return
      */
-    public List<SMSLog> getLogs(String groupBy);
+    public List<MsgLog> getLogs(String groupBy, String msgType);
 
     /**
      * 
      * @param item
      * @return
      */
-    public boolean createLog(SMSLog log);
+    public boolean createLog(MsgLog log);
 
     /**
      * 
      * @param item
      * @return
      */
-    public boolean removeAllLog();
+    public boolean removeAllLog(String msgType);
 
     // ******************************************************
     // Settings operations

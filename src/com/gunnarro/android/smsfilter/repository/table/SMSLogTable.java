@@ -9,6 +9,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 
+/**
+ * Use MsgLogTable
+ *
+ */
+@Deprecated
 public class SMSLogTable {
 
     // Database table

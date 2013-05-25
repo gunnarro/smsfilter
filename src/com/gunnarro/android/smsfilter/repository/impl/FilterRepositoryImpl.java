@@ -12,13 +12,16 @@ import android.database.sqlite.SQLiteDatabase;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Filter;
 import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.domain.MMSLog;
+import com.gunnarro.android.smsfilter.domain.MsgLog;
+import com.gunnarro.android.smsfilter.domain.MsgStatistic;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.domain.Setting;
 import com.gunnarro.android.smsfilter.repository.FilterDataBaseHjelper;
 import com.gunnarro.android.smsfilter.repository.FilterRepository;
 import com.gunnarro.android.smsfilter.repository.table.FilterTable;
 import com.gunnarro.android.smsfilter.repository.table.ItemTable;
-import com.gunnarro.android.smsfilter.repository.table.SMSLogTable;
+import com.gunnarro.android.smsfilter.repository.table.MsgLogTable;
 import com.gunnarro.android.smsfilter.repository.table.SettingTable;
 
 public class FilterRepositoryImpl implements FilterRepository {
@@ -61,16 +64,18 @@ public class FilterRepositoryImpl implements FilterRepository {
         String[] selectionArgs = { SettingTable.SMS_FILTER_ACTIVATED };
         String groupBy = null;
         String orderBy = null;
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, groupBy, null, orderBy);
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             setting = mapCursorToSetting(cursor);
         }
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         if (setting == null) {
             throw new RuntimeException("DB not initialize! Please report bug!");
         }
-        // Make sure to close the cursor
-        cursor.close();
         CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
         boolean isActivated = setting != null ? Boolean.parseBoolean(setting.getValue()) : false;
         CustomLog.i(this.getClass(), "is sms Filter activated=" + isActivated);
@@ -86,6 +91,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         where.append(SettingTable.COLUMN_KEY).append(" LIKE ?");
         String[] selectionArgs = { SettingTable.SMS_FILTER_ACTIVATED };
         ContentValues values = SettingTable.createContentValues(SettingTable.SMS_FILTER_ACTIVATED, Boolean.toString(isActivated));
+        this.database = dbHelper.getWritableDatabase();
         database.update(SettingTable.TABLE_NAME, values, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), "Updated Activated sms filter: " + isActivated);
     }
@@ -98,13 +104,15 @@ public class FilterRepositoryImpl implements FilterRepository {
         Setting setting = null;
         String selection = SettingTable.COLUMN_KEY + " LIKE ?";
         String[] selectionArgs = { SettingTable.LOG_SMS };
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
             setting = mapCursorToSetting(cursor);
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         CustomLog.d(this.getClass(), "type=" + setting + " value=" + setting);
         if (setting != null)
             return Boolean.getBoolean(setting.getValue());
@@ -131,6 +139,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         String[] selectionArgs = { "true" };
         String groupBy = null;
         String orderBy = FilterTable.COLUMN_FILTER_NAME + " ASC";
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(FilterTable.TABLE_NAME, FilterTable.TABLE_COLUMNS, selection, selectionArgs, groupBy, null, orderBy);
         // CustomLog.d(this.getClass(), "active filter hits=" +
         // cursor.getCount());
@@ -140,8 +149,9 @@ public class FilterRepositoryImpl implements FilterRepository {
             // cursor.getString(0));
             filter = mapCursorToFilter(cursor);
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         CustomLog.d(this.getClass(), "active filter=" + filter);
         return filter;
     }
@@ -154,13 +164,15 @@ public class FilterRepositoryImpl implements FilterRepository {
         Filter filter = null;
         String selection = FilterTable.COLUMN_FILTER_NAME + " LIKE ?";
         String[] selectionArgs = { filterName };
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(FilterTable.TABLE_NAME, FilterTable.TABLE_COLUMNS, selection, selectionArgs, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
             filter = mapCursorToFilter(cursor);
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         CustomLog.d(this.getClass(), "filter=" + filter);
         return filter;
     }
@@ -174,13 +186,15 @@ public class FilterRepositoryImpl implements FilterRepository {
         String orderBy = null;
         String selection = FilterTable.COLUMN_ID + " = ?";
         String[] selectionArgs = { id.toString() };
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(FilterTable.TABLE_NAME, FilterTable.TABLE_COLUMNS, selection, selectionArgs, null, null, orderBy);
         if (cursor != null) {
             cursor.moveToFirst();
             filter = mapCursorToFilter(cursor);
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         CustomLog.d(this.getClass(), "filter=" + filter);
         return filter;
     }
@@ -192,6 +206,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     public List<Filter> getFilterList() {
         List<Filter> list = new ArrayList<Filter>();
         String orderBy = FilterTable.COLUMN_FILTER_NAME + " ASC";
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(FilterTable.TABLE_NAME, FilterTable.TABLE_COLUMNS, null, null, null, null, orderBy);
         if (cursor != null) {
             cursor.moveToFirst();
@@ -200,8 +215,9 @@ public class FilterRepositoryImpl implements FilterRepository {
                 cursor.moveToNext();
             }
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         CustomLog.d(this.getClass(), "filters=" + cursor.getCount());
         return list;
     }
@@ -214,6 +230,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         StringBuffer where = new StringBuffer();
         where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
         String[] selectionArgs = { filterName };
+        this.database = dbHelper.getWritableDatabase();
         int deleted = database.delete(FilterTable.TABLE_NAME, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), filterName + "; deleted id=" + deleted);
         return true;
@@ -227,6 +244,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         StringBuffer where = new StringBuffer();
         where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
         String[] selectionArgs = { filterName };
+        this.database = dbHelper.getWritableDatabase();
         int deleted = database.delete(FilterTable.TABLE_NAME, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), filterName + "; deleted all id=" + deleted);
         return true;
@@ -241,6 +259,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         where.append(FilterTable.COLUMN_FILTER_NAME).append(" LIKE ?");
         String[] selectionArgs = { filter.getName() };
         ContentValues values = FilterTable.createContentValues(filter.getName(), Boolean.toString(filter.isActivated()));
+        this.database = dbHelper.getWritableDatabase();
         database.update(FilterTable.TABLE_NAME, values, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), "filter=" + filter.toString());
         return true;
@@ -252,6 +271,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     @Override
     public boolean createFilter(Filter filter) {
         ContentValues values = FilterTable.createContentValues(filter.getName(), filter.isActivated().toString());
+        this.database = dbHelper.getWritableDatabase();
         database.insert(FilterTable.TABLE_NAME, null, values);
         CustomLog.d(this.getClass(), filter.toString());
         return true;
@@ -284,6 +304,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         sqlQuery.append(" WHERE f.filter_name LIKE ?");
         sqlQuery.append(" AND i.fk_filter_id = f._id");
         String[] selectionArgs = { filterName };
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.rawQuery(sqlQuery.toString(), selectionArgs);
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -293,8 +314,9 @@ public class FilterRepositoryImpl implements FilterRepository {
             }
         }
         CustomLog.d(this.getClass(), "for filter=" + filterName + ", hits=" + cursor.getCount());
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         return list;
     }
 
@@ -307,6 +329,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         where.append(ItemTable.COLUMN_FK_FILTER_ID).append(" LIKE ?");
         where.append(" AND ").append(ItemTable.COLUMN_VALUE).append(" LIKE ?");
         String[] selectionArgs = { item.getFkFilterId().toString(), item.getValue() };
+        this.database = dbHelper.getWritableDatabase();
         int deleted = database.delete(ItemTable.TABLE_NAME, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), item.toValuePair() + "; deleted id=" + deleted);
         return true;
@@ -322,6 +345,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         where.append(" AND ").append(ItemTable.COLUMN_VALUE).append(" LIKE ?");
         String[] selectionArgs = { item.getFkFilterId().toString(), item.getValue() };
         ContentValues values = ItemTable.createContentValues(item.getFkFilterId(), item.getValue(), item.isEnabled().toString());
+        this.database = dbHelper.getWritableDatabase();
         int update = database.update(ItemTable.TABLE_NAME, values, where.toString(), selectionArgs);
         CustomLog.d(this.getClass(), item.toValuePair() + "; updated id=" + update);
         return false;
@@ -333,6 +357,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     @Override
     public boolean createItem(Item item) {
         ContentValues values = ItemTable.createContentValues(item.getFkFilterId(), item.getValue(), item.isEnabled().toString());
+        this.database = dbHelper.getWritableDatabase();
         database.insert(ItemTable.TABLE_NAME, null, values);
         CustomLog.d(this.getClass(), item.toValuePair());
         return true;
@@ -346,17 +371,19 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public List<SMSLog> getLogListOrderByDate() {
-        List<SMSLog> list = new ArrayList<SMSLog>();
-        Cursor cursor = database.query(SMSLogTable.TABLE_NAME, SMSLogTable.TABLE_COLUMNS, null, null, null, null, SMSLogTable.COLUMN_RECEIVED_TIME + " ASC");
+    public List<MsgLog> getLogListOrderByDate(String msgType) {
+        List<MsgLog> list = new ArrayList<MsgLog>();
+        this.database = dbHelper.getReadableDatabase();
+        Cursor cursor = database.query(MsgLogTable.TABLE_NAME, MsgLogTable.TABLE_COLUMNS, null, null, null, null, MsgLogTable.COLUMN_RECEIVED_TIME + " ASC");
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
-            list.add(mapCursorToSMSLog(cursor));
+            list.add(mapCursorToMsgLog(cursor));
             cursor.moveToLast();
-            list.add(mapCursorToSMSLog(cursor));
+            list.add(mapCursorToMsgLog(cursor));
         }
-        // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
         return list;
     }
 
@@ -364,8 +391,8 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public List<SMSLog> getLogList(String groupBy) {
-        String selectClause = SMSLogTable.COLUMN_RECEIVED_TIME;
+    public List<MsgLog> getLogList(String groupBy, String msgType) {
+        String selectClause = MsgLogTable.COLUMN_RECEIVED_TIME;
         if (groupBy.equalsIgnoreCase("year")) {
             selectClause = "strftime('%Y', datetime(received_time, 'unixepoch'))";
         } else if (groupBy.equalsIgnoreCase("month")) {
@@ -375,29 +402,56 @@ public class FilterRepositoryImpl implements FilterRepository {
         } else if (groupBy.equalsIgnoreCase("day")) {
             selectClause = "strftime('%d.%m', datetime(received_time, 'unixepoch'))";
         } else if (groupBy.equalsIgnoreCase("number")) {
-            selectClause = SMSLogTable.COLUMN_PHONE_NUMBER;
+            selectClause = MsgLogTable.COLUMN_PHONE_NUMBER;
         } else if (groupBy.equalsIgnoreCase("filter")) {
-            selectClause = SMSLogTable.COLUMN_FILTER_TYPE;
+            selectClause = MsgLogTable.COLUMN_FILTER_TYPE;
         }
-        List<SMSLog> list = new ArrayList<SMSLog>();
+        List<MsgLog> list = new ArrayList<MsgLog>();
         StringBuffer query = new StringBuffer();
         query.append("SELECT ").append(selectClause).append(" AS value");
-        query.append(", count(").append(SMSLogTable.COLUMN_RECEIVED_TIME).append(") AS count");
-        query.append(" FROM ").append(SMSLogTable.TABLE_NAME);
-        query.append(" GROUP BY ").append(selectClause);
+        query.append(", count(").append(MsgLogTable.COLUMN_RECEIVED_TIME).append(") AS total_count");
+        query.append(", count(msg_type = 'SMS') as sms_count");
+        query.append(", count(msg_type = 'MMS') as mms_count");
+        query.append(", msg_type");
+        query.append(" FROM ").append(MsgLogTable.TABLE_NAME);
+        // query.append(" WHERE ").append(MsgLogTable.COLUMN_MSG_TYPE).append(" LIKE '").append(msgType).append("'");
+        query.append(" GROUP BY ").append(selectClause).append(", msg_type");
         query.append(" ORDER BY ").append(selectClause);
 
+        /**
+         * 
+         * select phone_number, count(msg_type) as msg_count from msg_log where
+         * ( select phone_number, msg_type, count(msg_type) sms_count, from
+         * msg_log
+         * 
+         * group by id,userID ) GROUP BY phone_number
+         **/
         CustomLog.i(this.getClass(), query.toString());
+        this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.rawQuery(query.toString(), null);
         if (cursor != null) {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                list.add(new SMSLog(cursor.getString(cursor.getColumnIndex("value")), cursor.getInt(cursor.getColumnIndex("count"))));
+                String type = cursor.getString(cursor.getColumnIndex("msg_type"));
+                CustomLog.i(
+                        FilterRepositoryImpl.class,
+                        new MsgStatistic(type, cursor.getString(cursor.getColumnIndex("value")), cursor.getInt(cursor.getColumnIndex("sms_count")), cursor
+                                .getInt(cursor.getColumnIndex("mms_count")), cursor.getInt(cursor.getColumnIndex("total_count"))).toString());
+                if (type.equals("SMS")) {
+                    list.add(new SMSLog(cursor.getString(cursor.getColumnIndex("value")), cursor.getInt(cursor.getColumnIndex("sms_count"))));
+                } else if (type.equals("MMS")) {
+                    list.add(new MMSLog(cursor.getString(cursor.getColumnIndex("value")), cursor.getInt(cursor.getColumnIndex("mms_count"))));
+                } else {
+                    CustomLog.e(FilterRepositoryImpl.class, "BUG: Unkown msgType: " + type);
+                }
                 cursor.moveToNext();
             }
         }
         // Make sure to close the cursor
-        cursor.close();
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        this.dbHelper.close();
         return list;
     }
 
@@ -405,9 +459,11 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public boolean createLog(SMSLog log) {
-        ContentValues values = SMSLogTable.createContentValues(log.getReceivedTime(), log.getPhoneNumber(), log.getStatus(), log.getFilterType());
-        database.insert(SMSLogTable.TABLE_NAME, null, values);
+    public boolean createLog(MsgLog log) {
+        ContentValues values = MsgLogTable.createContentValues(log.getReceivedTime(), log.getPhoneNumber(), log.getStatus(), log.getFilterType(),
+                log.getMsgType());
+        this.database = dbHelper.getWritableDatabase();
+        database.insert(MsgLogTable.TABLE_NAME, null, values);
         return true;
     }
 
@@ -415,17 +471,18 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public boolean removeAllLog() {
-        database.delete(SMSLogTable.TABLE_NAME, "_id LIKE ?", new String[] { "%" });
+    public boolean removeAllLog(String msgType) {
+        this.database = dbHelper.getWritableDatabase();
+        database.delete(MsgLogTable.TABLE_NAME, "_id LIKE ? AND msg_type LIKE ?", new String[] { "%", msgType });
         return true;
     }
 
-    private SMSLog mapCursorToSMSLog(Cursor cursor) {
+    private SMSLog mapCursorToMsgLog(Cursor cursor) {
         // Have to convert the received time to milliseconds, since it it stored
         // in seconds.
-        long received_time_ms = ((long) cursor.getInt(cursor.getColumnIndex(SMSLogTable.COLUMN_RECEIVED_TIME))) * 1000L;
-        return new SMSLog(received_time_ms, cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_PHONE_NUMBER)), cursor.getString(cursor
-                .getColumnIndex(SMSLogTable.COLUMN_STATUS)), cursor.getString(cursor.getColumnIndex(SMSLogTable.COLUMN_FILTER_TYPE)));
+        long received_time_ms = ((long) cursor.getInt(cursor.getColumnIndex(MsgLogTable.COLUMN_RECEIVED_TIME))) * 1000L;
+        return new SMSLog(received_time_ms, cursor.getString(cursor.getColumnIndex(MsgLogTable.COLUMN_PHONE_NUMBER)), cursor.getString(cursor
+                .getColumnIndex(MsgLogTable.COLUMN_STATUS)), cursor.getString(cursor.getColumnIndex(MsgLogTable.COLUMN_FILTER_TYPE)));
     }
-    
+
 }

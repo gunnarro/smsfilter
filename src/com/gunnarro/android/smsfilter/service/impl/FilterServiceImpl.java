@@ -12,6 +12,8 @@ import android.provider.ContactsContract;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 import com.gunnarro.android.smsfilter.domain.Filter;
 import com.gunnarro.android.smsfilter.domain.Item;
+import com.gunnarro.android.smsfilter.domain.Msg;
+import com.gunnarro.android.smsfilter.domain.MsgLog;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.repository.FilterRepository;
 import com.gunnarro.android.smsfilter.repository.impl.FilterRepositoryImpl;
@@ -66,14 +68,14 @@ public class FilterServiceImpl implements FilterService {
     }
 
     public static String createSearch(String value) {
-        if (value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             return "";
         }
         String filter = "^" + value.replace("*", "") + ".*";
         if (value.startsWith("+")) {
             filter = "^\\" + value.replace("*", "") + ".*";
         } else if (value.startsWith("hidden")) {
-            filter = "[0-9,+]";
+            filter = "[0-9,+]{8,19}";
         }
         return filter;
     }
@@ -133,7 +135,7 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
-    public boolean isBlocked(String phoneNumber) {
+    public boolean isBlocked(Msg msg) {
         boolean isBlocked = false;
         FilterTypeEnum activeFilterType = getActiveFilterType();
         if (activeFilterType == null) {
@@ -143,29 +145,29 @@ public class FilterServiceImpl implements FilterService {
 
         if (activeFilterType.isContacts()) {
             // Check contact list
-            if (!isInContactList(phoneNumber)) {
+            if (!isInContactList(msg.getPhoneNumber())) {
                 isBlocked = true;
             }
         } else if (activeFilterType.isBlackList()) {
-            Item item = searchList(activeFilterType.name(), phoneNumber);
+            Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
             if (item != null && item.isEnabled()) {
                 isBlocked = true;
             }
         } else if (activeFilterType.isWhiteList()) {
-            Item item = searchList(activeFilterType.name(), phoneNumber);
+            Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
             if (item == null || (item != null && !item.isEnabled())) {
                 isBlocked = true;
             }
         }
         if (isBlocked) {
-            logBlockedMsg(phoneNumber, activeFilterType.name(), "msgType");
+            logBlockedMsg(msg.getPhoneNumber(), activeFilterType.name(), msg.getType());
         }
-        CustomLog.d(FilterServiceImpl.class, ".isBlocked(): Filter type=" + activeFilterType + ", number=" + phoneNumber + ", isBlocked=" + isBlocked);
+        CustomLog.d(FilterServiceImpl.class, ".isBlocked(): Filter type=" + activeFilterType + "," + msg.toString() + ", isBlocked=" + isBlocked);
         return isBlocked;
     }
 
     private void logBlockedMsg(String phoneNumber, String filterType, String msgType) {
-        filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, SMSLog.STATUS_SMS_BLOCKED, filterType));
+        filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, MsgLog.STATUS_MSG_BLOCKED, filterType));
     }
 
     private boolean isInContactList(String phoneNumber) {
@@ -276,9 +278,9 @@ public class FilterServiceImpl implements FilterService {
      * @return
      */
     @Override
-    public List<SMSLog> getLogsStartDateAndEndDate() {
-        List<SMSLog> list = new ArrayList<SMSLog>();
-        List<SMSLog> logListOrderByDate = filterRepository.getLogListOrderByDate();
+    public List<MsgLog> getLogsStartDateAndEndDate() {
+        List<MsgLog> list = new ArrayList<MsgLog>();
+        List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
         if (logListOrderByDate.size() == 0) {
             return null;
         } else if (logListOrderByDate.size() == 1) {
@@ -291,8 +293,8 @@ public class FilterServiceImpl implements FilterService {
         return list;
     }
 
-    public SMSLog getLogsEndDate() {
-        List<SMSLog> logListOrderByDate = filterRepository.getLogListOrderByDate();
+    public MsgLog getLogsEndDate() {
+        List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
         return logListOrderByDate.size() > 0 ? logListOrderByDate.get(0) : null;
     }
 
@@ -300,15 +302,15 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
-    public List<SMSLog> getLogs(String groupBy) {
-        return filterRepository.getLogList(groupBy);
+    public List<MsgLog> getLogs(String groupBy, String msgType) {
+        return filterRepository.getLogList(groupBy, msgType);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean createLog(SMSLog log) {
+    public boolean createLog(MsgLog log) {
         return filterRepository.createLog(log);
     }
 
@@ -316,8 +318,8 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
-    public boolean removeAllLog() {
-        return filterRepository.removeAllLog();
+    public boolean removeAllLog(String msgType) {
+        return filterRepository.removeAllLog(msgType);
     }
 
     /**

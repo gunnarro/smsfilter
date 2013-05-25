@@ -1,8 +1,8 @@
 package com.gunnarro.android.smsfilter.domain;
 
-public class SMS extends Msg {
+public class MMS extends Msg {
 
-    public SMS(String phoneNumber) {
+    public MMS(String phoneNumber) {
         super(phoneNumber);
     }
 
@@ -11,6 +11,6 @@ public class SMS extends Msg {
      */
     @Override
     public String getType() {
-        return SMS.class.getSimpleName();
+        return MMS.class.getSimpleName();
     }
 }

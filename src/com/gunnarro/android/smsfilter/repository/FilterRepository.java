@@ -6,7 +6,7 @@ import android.database.SQLException;
 
 import com.gunnarro.android.smsfilter.domain.Filter;
 import com.gunnarro.android.smsfilter.domain.Item;
-import com.gunnarro.android.smsfilter.domain.SMSLog;
+import com.gunnarro.android.smsfilter.domain.MsgLog;
 
 public interface FilterRepository {
 
@@ -148,21 +148,21 @@ public interface FilterRepository {
     // Log operations
     // ******************************************************
 
-    public List<SMSLog> getLogListOrderByDate();
+    public List<MsgLog> getLogListOrderByDate(String msgType);
 
-    public List<SMSLog> getLogList(String groupBy);
+    public List<MsgLog> getLogList(String groupBy, String msgType);
 
     /**
      * 
      * @param item
      * @return
      */
-    public boolean createLog(SMSLog log);
+    public boolean createLog(MsgLog log);
 
     /**
      * 
      * @return
      */
-    public boolean removeAllLog();
+    public boolean removeAllLog(String msgType);
 
 }

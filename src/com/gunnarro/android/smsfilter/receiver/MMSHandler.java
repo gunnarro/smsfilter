@@ -10,7 +10,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
-import com.gunnarro.android.smsfilter.domain.SMSLog;
+import com.gunnarro.android.smsfilter.domain.MMS;
+import com.gunnarro.android.smsfilter.domain.MMSLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
 
 public class MMSHandler extends MessageHandler {
@@ -50,7 +51,8 @@ public class MMSHandler extends MessageHandler {
         FilterService filterService = getFilterService(context);
         // log all received sms in order to present some statistic
         if (filterService.isLogMsg()) {
-            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
+            filterService.createLog(new MMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", MMSLog.STATUS_MSG_RECEIVED, null));
+
         }
         if (!filterService.isMsgFilterActivated()) {
             return;
@@ -65,7 +67,7 @@ public class MMSHandler extends MessageHandler {
         if (matcher.find()) {
             phoneNumber = matcher.group();
             Toast.makeText(context, "MMS filter number!" + phoneNumber, Toast.LENGTH_LONG).show();
-            super.filter(phoneNumber);
+            super.filter(new MMS(phoneNumber));
         } else {
             Toast.makeText(context, "No phonenumber found in MMS data part!" + buffer, Toast.LENGTH_LONG).show();
         }

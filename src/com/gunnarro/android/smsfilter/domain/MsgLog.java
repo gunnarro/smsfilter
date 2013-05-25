@@ -5,10 +5,11 @@ package com.gunnarro.android.smsfilter.domain;
  * @author gunnarro
  * 
  */
-public class MsgLog {
+public abstract class MsgLog {
 
-    public static final String STATUS_SMS_BLOCKED = "SMS_RECEIVED_BLOCKED";
-    public static final String STATUS_SMS_RECEIVED = "SMS_RECEIVED";
+    public static final String STATUS_MSG_BLOCKED = "MSG_RECEIVED_BLOCKED";
+    public static final String STATUS_MSG_RECEIVED = "MSG_RECEIVED";
+
     private long receivedTime;
     private String name;
     private String phoneNumber;
@@ -28,6 +29,8 @@ public class MsgLog {
         this.status = status;
         this.filterType = filterType;
     }
+
+    public abstract String getMsgType();
 
     public String getName() {
         return name;
@@ -66,6 +69,6 @@ public class MsgLog {
      */
     @Override
     public String toString() {
-        return receivedTime + " " + phoneNumber + " " + status + " " + filterType;
+        return getMsgType() + " " + receivedTime + " " + phoneNumber + " " + status + " " + filterType + " " + count;
     }
 }

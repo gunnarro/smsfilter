@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.Msg;
 import com.gunnarro.android.smsfilter.service.FilterService;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
@@ -30,9 +31,9 @@ public abstract class MessageHandler extends BroadcastReceiver {
         }
     }
 
-    protected void filter(String phoneNumber) {
+    protected void filter(Msg msg) {
         try {
-            if (filterService.isBlocked(phoneNumber)) {
+            if (filterService.isBlocked(msg)) {
                 super.abortBroadcast();
             }
         } catch (Exception e) {

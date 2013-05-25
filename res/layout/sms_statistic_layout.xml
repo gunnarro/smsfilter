@@ -67,10 +67,16 @@
                 android:src="@drawable/calendar" />
 
             <ImageView
-                android:id="@+id/receivedSmsImg"
+                android:id="@+id/receivedSMSImg"
                 android:contentDescription="@string/na"
                 android:gravity="center_horizontal"
-                android:src="@drawable/inbox" />
+                android:src="@drawable/sms" />
+            
+            <ImageView
+                android:id="@+id/receivedMMSImg"
+                android:contentDescription="@string/na"
+                android:gravity="center_horizontal"
+                android:src="@drawable/mms" />
         </TableRow>
         <!-- Generated call statistic rows -->
     </TableLayout>

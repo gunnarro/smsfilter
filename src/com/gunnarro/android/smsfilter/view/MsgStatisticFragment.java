@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -24,14 +25,16 @@ import android.widget.TextView;
 
 import com.gunnarro.android.smsfilter.R;
 import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.MMSLog;
+import com.gunnarro.android.smsfilter.domain.MsgLog;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 
-public class SMSStatisticFragment extends Fragment {
+public class MsgStatisticFragment extends Fragment {
 
     protected FilterService filterService;
-    private String viewBy = "Year";
+    private String viewBy = "Number";
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss", Locale.US);
 
     @Override
@@ -73,7 +76,8 @@ public class SMSStatisticFragment extends Fragment {
         deleteButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View btnView) {
-                clearBlockedSMSlog();
+                 clearBlockedMsglog();
+//                addTestData();
                 // the update the view
                 updateSMSStatistic(statView);
             }
@@ -85,16 +89,17 @@ public class SMSStatisticFragment extends Fragment {
         if (table == null) {
             return;
         }
-        CustomLog.i(this.getClass(), "...child: " + table.getChildCount());
+        CustomLog.i(MsgStatisticFragment.class, "...child: " + table.getChildCount());
         if (table.getChildCount() > 3) {
             table.removeViews(3, table.getChildCount() - 3);
-            CustomLog.i(this.getClass(), "Removed rows from view: " + (table.getChildCount() - 3));
+            CustomLog.i(MsgStatisticFragment.class, "Removed rows from view: " + (table.getChildCount() - 3));
         }
     }
 
-    private void clearBlockedSMSlog() {
-        filterService.removeAllLog();
-        CustomLog.i(this.getClass(), "Removed all from DB");
+    private void clearBlockedMsglog() {
+        String msgType = "%";
+        filterService.removeAllLog(msgType);
+        CustomLog.i(MsgStatisticFragment.class, msgType + " Removed all from DB");
     }
 
     private void updateSMSStatistic(View statView) {
@@ -105,22 +110,30 @@ public class SMSStatisticFragment extends Fragment {
         // Remove all rows before updating the table, except for the table
         // header rows.
         clearStatistic(statView);
-        List<SMSLog> blockedSMSmsLogs = filterService.getLogs(viewBy);
-        List<SMSLog> logsStartDateAndEndDate = filterService.getLogsStartDateAndEndDate();
+        List<MsgLog> blockedMsgLogs = filterService.getLogs(viewBy, "MMS");
+        List<MsgLog> logsStartDateAndEndDate = filterService.getLogsStartDateAndEndDate();
         Date startDate = logsStartDateAndEndDate != null ? new Date(logsStartDateAndEndDate.get(0).getReceivedTime()) : Calendar.getInstance().getTime();
         Date endDate = logsStartDateAndEndDate != null ? new Date(logsStartDateAndEndDate.get(1).getReceivedTime()) : Calendar.getInstance().getTime();
-        int totalCount = 0;
-        for (SMSLog sms : blockedSMSmsLogs) {
+        int totalSMSCount = 0;
+        int totalMMSCount = 0;
+        for (MsgLog msg : blockedMsgLogs) {
             if (viewBy.equalsIgnoreCase("number")) {
                 // try to look up number in the contact in order to find the
                 // name
-                String contactName = filterService.lookUpContacts(sms.getKey());
+                String contactName = filterService.lookUpContacts(msg.getKey());
                 if (contactName != null) {
-                    sms.setKey(contactName);
+                    msg.setKey(contactName);
                 }
             }
-            totalCount += sms.getCount();
-            table.addView(createTableRow(statView, sms.getKey(), sms.getCount(), table.getChildCount()));
+//            CustomLog.i(MsgStatisticFragment.class, msg.toString());
+            if (msg.getMsgType().equals("SMS")) {
+                totalSMSCount += msg.getCount();
+            } else if (msg.getMsgType().equals("MMS")) {
+                totalMMSCount += msg.getCount();
+            } else {
+                CustomLog.e(MsgStatisticFragment.class, "BUG: msgType invalid:" + msg.getMsgType());
+            }
+            table.addView(createTableRow(statView, msg.getKey(), msg.getCount(), msg.getCount(), table.getChildCount()));
         }
         formatter.applyPattern("dd.MM.yyyy");
         String periode = formatter.format(startDate) + " - " + formatter.format(endDate);
@@ -130,10 +143,10 @@ public class SMSStatisticFragment extends Fragment {
         // Add row with totals at the end of the table
         TableRow row = new TableRow(statView.getContext());
         table.addView(row);
-        table.addView(createTableRow(statView, getResources().getString(R.string.tbl_blocked_total), totalCount, -1));
+        table.addView(createTableRow(statView, getResources().getString(R.string.tbl_blocked_total), totalSMSCount, totalMMSCount, -1));
     }
 
-    private TableRow createTableRow(View statView, String value, int count, int rowNumber) {
+    private TableRow createTableRow(View statView, String value, int smsCount, int mmsCount, int rowNumber) {
         TableRow row = new TableRow(statView.getContext());
         int rowBgColor = getResources().getColor(R.color.tbl_row_even);
         int txtColor = getResources().getColor(R.color.tbl_txt);
@@ -149,7 +162,8 @@ public class SMSStatisticFragment extends Fragment {
             numberColor = getResources().getColor(R.color.white);
         }
         row.addView(createTextView(statView, value, rowBgColor, txtColor, Gravity.CENTER));
-        row.addView(createTextView(statView, Integer.toString(count), rowBgColor, numberColor, Gravity.RIGHT));
+        row.addView(createTextView(statView, Integer.toString(smsCount), rowBgColor, numberColor, Gravity.RIGHT));
+        row.addView(createTextView(statView, Integer.toString(mmsCount), rowBgColor, numberColor, Gravity.RIGHT));
         // Just in order to make the table symmetric with 3 colons all over.
         // TableRow.LayoutParams params = (TableRow.LayoutParams)
         // row.getLayoutParams();
@@ -172,7 +186,9 @@ public class SMSStatisticFragment extends Fragment {
     // for testing only
     @Deprecated
     private void addTestData() {
-        this.filterService.createLog(new SMSLog(System.currentTimeMillis(), "11223344", SMSLog.STATUS_SMS_RECEIVED, "none"));
+        int nextInt = new Random().nextInt(100);
+        this.filterService.createLog(new SMSLog(System.currentTimeMillis(), "11223344" + nextInt, SMSLog.STATUS_MSG_RECEIVED, "none"));
+        this.filterService.createLog(new MMSLog(System.currentTimeMillis(), "11223344" + nextInt, SMSLog.STATUS_MSG_RECEIVED, "none"));
     }
 
     /**

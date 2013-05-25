@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
         // .setIcon(R.drawable.black_list_tab));
         actionbar.addTab(actionbar.newTab().setText(R.string.tab_whitelist).setTabListener(new MyTabsListener<Fragment>(new WhiteListFragment())));
         // .setIcon(R.drawable.white_list_tab));
-        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked).setTabListener(new MyTabsListener<Fragment>(new SMSStatisticFragment())));
+        actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked).setTabListener(new MyTabsListener<Fragment>(new MsgStatisticFragment())));
         // .setIcon(R.drawable.blocked_sms_history_tab));
 
         if (savedInstanceState != null) {

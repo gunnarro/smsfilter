@@ -9,15 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
 
-/**
- * Use MsgLogTable
- *
- */
-@Deprecated
 public class MsgLogTable {
 
     // Database table
-    public static final String TABLE_NAME = "msg_log";
+    public static final String TABLE_NAME = "msg_logs";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_RECEIVED_TIME = "received_time";
     public static final String COLUMN_PHONE_NUMBER = "phone_number";

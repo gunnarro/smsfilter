@@ -1,5 +1,6 @@
 package com.gunnarro.android.smsfilter.domain;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -14,6 +15,8 @@ public class Filter {
     private String name;
     private String type;
     private boolean isActivated;
+    private Calendar fromTime;
+    private Calendar toTime;
     private List<Item> itemList;
 
     public Filter(String name, boolean isActivated) {
@@ -37,7 +40,7 @@ public class Filter {
     }
 
     public Boolean isActivated() {
-        return isActivated;
+        return isActivated && isInActiveTimePeriode();
     }
 
     public void setActivated(boolean isActivated) {
@@ -58,6 +61,35 @@ public class Filter {
 
     public String getType() {
         return type;
+    }
+
+    public Calendar getFromTime() {
+        return fromTime;
+    }
+
+    public void setFromTime(Calendar fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public Calendar getToTime() {
+        return toTime;
+    }
+
+    public void setToTime(Calendar toTime) {
+        this.toTime = toTime;
+    }
+
+    private boolean isInActiveTimePeriode() {
+        if (fromTime == null || toTime == null) {
+            // time period not set, return true
+            return true;
+        }
+        Calendar currentTime = Calendar.getInstance();
+        if (currentTime.get(Calendar.HOUR_OF_DAY) > fromTime.get(Calendar.HOUR_OF_DAY)
+                && currentTime.get(Calendar.HOUR_OF_DAY) < toTime.get(Calendar.HOUR_OF_DAY)) {
+            return true;
+        }
+        return false;
     }
 
     /**

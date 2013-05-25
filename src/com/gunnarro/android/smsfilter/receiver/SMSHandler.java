@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 
 import com.gunnarro.android.smsfilter.custom.CustomLog;
+import com.gunnarro.android.smsfilter.domain.SMS;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.service.FilterService;
 
@@ -40,7 +41,7 @@ public class SMSHandler extends MessageHandler {
         FilterService filterService = getFilterService(context);
         // log all received sms in order to present some statistic
         if (filterService.isLogMsg()) {
-            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_SMS_RECEIVED, null));
+            filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_MSG_RECEIVED, null));
         }
         if (!filterService.isMsgFilterActivated()) {
             return;
@@ -49,7 +50,7 @@ public class SMSHandler extends MessageHandler {
         SmsMessage[] msgs = new SmsMessage[pdus.length];
         for (int i = 0; i < msgs.length; i++) {
             msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-            super.filter(msgs[i].getOriginatingAddress());
+            super.filter(new SMS(msgs[i].getOriginatingAddress()));
         }
     }
 }

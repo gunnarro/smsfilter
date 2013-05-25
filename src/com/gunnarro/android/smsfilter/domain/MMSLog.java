@@ -5,13 +5,15 @@ package com.gunnarro.android.smsfilter.domain;
  * @author gunnarro
  * 
  */
-public class SMSLog extends MsgLog {
+public class MMSLog extends MsgLog {
 
-    public SMSLog(String key, int count) {
+    public static final String MSG_TYPE = "MMS";
+
+    public MMSLog(String key, int count) {
         super(key, count);
     }
 
-    public SMSLog(long receivedTime, String phoneNumber, String status, String filterType) {
+    public MMSLog(long receivedTime, String phoneNumber, String status, String filterType) {
         super(receivedTime, phoneNumber, status, filterType);
     }
 
@@ -20,6 +22,6 @@ public class SMSLog extends MsgLog {
      */
     @Override
     public String getMsgType() {
-        return SMS.class.getSimpleName();
+        return MMS.class.getSimpleName();
     }
 }
