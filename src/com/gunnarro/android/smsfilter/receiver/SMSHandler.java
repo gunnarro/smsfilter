@@ -43,7 +43,7 @@ public class SMSHandler extends MessageHandler {
         if (filterService.isLogMsg()) {
             filterService.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", SMSLog.STATUS_MSG_RECEIVED, null));
         }
-        if (!filterService.isMsgFilterActivated()) {
+        if (!filterService.isMsgFilterActive()) {
             return;
         }
         Object[] pdus = (Object[]) bundle.get("pdus");

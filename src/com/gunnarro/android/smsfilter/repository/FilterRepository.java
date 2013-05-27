@@ -32,18 +32,52 @@ public interface FilterRepository {
     // ******************************************************
 
     /**
-     * Method to check if the sms filter is turned on or off.
+     * Method to check if the message filter is turned on or off.
      * 
      * @return true if the filter is activated, false otherwise
      */
     public boolean isMsgFilterActivated();
 
     /**
-     * Method to activate or deactivate the sms filter.
+     * Method to check if the message filter period is turned on or off.
+     * 
+     * @return true if the filter period is activated, false otherwise
+     */
+    public boolean isMsgFilterPeriodActivated();
+
+    /**
+     * Method to activate or deactivate the message filter.
      * 
      * @param isActivated true if the filter is activated, false otherwise
      */
-    public void updateSMSFilterActivated(boolean isActivated);
+    public void updateMsgFilterActivated(boolean isActivated);
+
+    /**
+     * Method to activate or deactivate the message filter time period.
+     * 
+     * @param isActivated true if the filter is activated, false otherwise
+     */
+    public void updateMsgFilterPeriodActivated(boolean isActivated);
+
+    /**
+     * 
+     */
+    public void updateMsgFilterPeriodFromTime(long fromTime);
+
+    /**
+     * 
+     */
+    public void updateMsgFilterPeriodToTime(long toTime);
+
+    /**
+     * 
+     */
+    public long getMsgFilterPeriodFromTime();
+
+    /**
+     * 
+     */
+    public long getMsgFilterPeriodToTime();
 
     /**
      * 

@@ -54,7 +54,7 @@ public class MMSHandler extends MessageHandler {
             filterService.createLog(new MMSLog(Calendar.getInstance().getTimeInMillis(), "xxxxxxxx", MMSLog.STATUS_MSG_RECEIVED, null));
 
         }
-        if (!filterService.isMsgFilterActivated()) {
+        if (!filterService.isMsgFilterActive()) {
             return;
         }
         String phoneNumber = null;

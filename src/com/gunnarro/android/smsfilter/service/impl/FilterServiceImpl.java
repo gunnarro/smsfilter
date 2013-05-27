@@ -17,6 +17,7 @@ import com.gunnarro.android.smsfilter.domain.MsgLog;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.repository.FilterRepository;
 import com.gunnarro.android.smsfilter.repository.impl.FilterRepositoryImpl;
+import com.gunnarro.android.smsfilter.repository.table.SettingTable;
 import com.gunnarro.android.smsfilter.service.FilterService;
 
 /**
@@ -111,6 +112,14 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
+    public boolean isMsgFilterPeriodActivated() {
+        return this.filterRepository.isMsgFilterPeriodActivated();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isMsgFilterActivated() {
         return this.filterRepository.isMsgFilterActivated();
     }
@@ -119,16 +128,110 @@ public class FilterServiceImpl implements FilterService {
      * {@inheritDoc}
      */
     @Override
-    public void activateSMSFilter() {
-        this.filterRepository.updateSMSFilterActivated(true);
+    public boolean isMsgFilterActive() {
+        boolean msgFilterActivated = this.filterRepository.isMsgFilterActivated();
+        if (!msgFilterActivated) {
+            return false;
+        }
+        // the msg filter is activated, so we have to check if the time period
+        // is activated also
+        boolean msgFilterPeriodActivated = this.filterRepository.isMsgFilterPeriodActivated();
+        if (!msgFilterPeriodActivated) {
+            // do not care about the time, only message filter is activated, so
+            // return true;
+            return true;
+        }
+
+        // The time period is turned on, so we have the check if current time is
+        // in out outside of the selected time period.
+        long fromTime = filterRepository.getMsgFilterPeriodFromTime();
+        long toTime = filterRepository.getMsgFilterPeriodToTime();
+
+        return isInActiveTimePeriode(fromTime, toTime);
+    }
+
+    private boolean isInActiveTimePeriode(long fromTime, long toTime) {
+        if (fromTime == 0 || toTime == 0) {
+            // time period not set, return true
+            return true;
+        }
+        Calendar currentTime = Calendar.getInstance();
+        Calendar fromTimeCal = Calendar.getInstance();
+        fromTimeCal.setTimeInMillis(fromTime);
+        Calendar toTimeCal = Calendar.getInstance();
+        toTimeCal.setTimeInMillis(toTime);
+
+        if (currentTime.get(Calendar.HOUR_OF_DAY) > fromTimeCal.get(Calendar.HOUR_OF_DAY)
+                && currentTime.get(Calendar.HOUR_OF_DAY) < toTimeCal.get(Calendar.HOUR_OF_DAY)) {
+            return true;
+        }
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deactivateSMSFilter() {
-        this.filterRepository.updateSMSFilterActivated(false);
+    public void activateMsgFilter() {
+        this.filterRepository.updateMsgFilterActivated(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deactivateMsgFilter() {
+        this.filterRepository.updateMsgFilterActivated(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activateMsgFilterPeriod() {
+        this.filterRepository.updateMsgFilterPeriodActivated(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deactivateMsgFilterPeriod() {
+        this.filterRepository.updateMsgFilterPeriodActivated(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateMsgFilterPeriod(String type, long time) {
+        if (type.equals(SettingTable.SMS_FILTER_PERIOD_FROM_TIME)) {
+            this.filterRepository.updateMsgFilterPeriodFromTime(time);
+        } else if ((type.equals(SettingTable.SMS_FILTER_PERIOD_TO_TIME))) {
+            this.filterRepository.updateMsgFilterPeriodToTime(time);
+        } else {
+            CustomLog.e(FilterServiceImpl.class, "Bug unkown msg filter period type: " + type);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getMsgFilterPeriodFromHour() {
+        Calendar instance = Calendar.getInstance();
+        instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodFromTime());
+        return instance.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getMsgFilterPeriodToHour() {
+        Calendar instance = Calendar.getInstance();
+        instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodToTime());
+        return instance.get(Calendar.HOUR_OF_DAY);
     }
 
     /**

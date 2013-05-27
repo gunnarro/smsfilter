@@ -14,7 +14,7 @@ import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeE
 public class FilterDataBaseHjelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "smsfilter.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 50;
 
     private static FilterDataBaseHjelper instance = null;
 
@@ -75,7 +75,10 @@ public class FilterDataBaseHjelper extends SQLiteOpenHelper {
     private void insertDefaultData(SQLiteDatabase database) {
         // init settings
         database.execSQL("insert into settings (_id, key, value) values(1,'" + SettingTable.SMS_FILTER_ACTIVATED + "','false')");
-        database.execSQL("insert into settings (_id, key, value) values(2,'" + SettingTable.LOG_SMS + "','false')");
+        database.execSQL("insert into settings (_id, key, value) values(2,'" + SettingTable.SMS_FILTER_PERIOD_ACTIVATED + "','false')");
+        database.execSQL("insert into settings (_id, key, value) values(3,'" + SettingTable.SMS_FILTER_PERIOD_FROM_TIME + "','0')");
+        database.execSQL("insert into settings (_id, key, value) values(4,'" + SettingTable.SMS_FILTER_PERIOD_TO_TIME + "','0')");
+        database.execSQL("insert into settings (_id, key, value) values(5,'" + SettingTable.LOG_MSG + "','false')");
 
         // Init. available filter types, which are all deactivated as default.
         database.execSQL("insert into filters (_id, filter_name, activated) values(1,'" + FilterTypeEnum.SMS_BLACK_LIST.name() + "','true')");
@@ -102,6 +105,6 @@ public class FilterDataBaseHjelper extends SQLiteOpenHelper {
                 + ", '45465501', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "', 'SMS')");
         database.execSQL("insert into msg_logs (_id, received_time, phone_number, status, filter_type, msg_type) values(6," + System.currentTimeMillis() / 1000
                 + ", '45465503', 'blocked', '" + FilterTypeEnum.SMS_BLACK_LIST.name() + "', 'SMS')");
-       
+
     }
 }

@@ -1,6 +1,6 @@
 ﻿(c) 2013 gunnarro
-Component    					: Android 4.0, SMS Filter
-Version							: 1.0.0
+Component    					: Android 4.0, SMS/MMS Filter Free
+Version							: 2.0.0
 Last release date 				: 12.05.2013
 Developer   					: Gunnar Rønneberg, Oslo, Norway
 
@@ -8,10 +8,14 @@ Developer   					: Gunnar Rønneberg, Oslo, Norway
 Release history
 ----------------------------------------------------------------------
 Release date 		: 12.05.2013
-Version				: 1.1.0
+Version				: 2.0.0
 
 New features:
 	- Added filtering for MMS
+	- Blocking of hidden numbers, by adding the key word 'hidden' to the list
+	- Blocking based on message content, i.e, search for given words
+	- Filter by time and day, i.e, setup to only filter for night time, from 2300 - 0700, or only on weekends, saturdays and sundays.
+	- Auto reply when sms/mms is blocked, can reply to specific numbers only, custom reply message, custom reply interval.
 	
 ----------------------------------------------------------------------
 Release date 		: 12.05.2013

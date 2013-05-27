@@ -13,12 +13,18 @@ public class SettingTable {
     /**
      * valid values are true or false only
      */
-    public static String SMS_FILTER_ACTIVATED = "sms_filter_activated";
+    public static String SMS_FILTER_ACTIVATED = "msg_filter_activated";
+    /**
+     * valid values are true or false only
+     */
+    public static String SMS_FILTER_PERIOD_ACTIVATED = "msg_filter_period_activated";
+    public static String SMS_FILTER_PERIOD_FROM_TIME = "msg_filter_period_form_time";
+    public static String SMS_FILTER_PERIOD_TO_TIME = "msg_filter_period_to_time";
 
     /**
-     * In order to turn on/off logging of incomming sms.
+     * In order to turn on/off logging of incoming messages.
      */
-    public static String LOG_SMS = "log_sms";
+    public static String LOG_MSG = "log_msg";
 
     // public static String SMS_ACTIVE_FILTER_NAME = "sms_active_filter_name";
 

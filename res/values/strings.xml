@@ -9,7 +9,7 @@
     <string name="tab_blacklist">BlackList</string>
     <string name="tab_whitelist">WhiteList</string>
     <string name="tab_blocked">Blocked</string>
-    <string name="turn_sms_filter_on_off_txt">Turn SMS filter on/off</string>
+    <string name="turn_filter_on_off_txt">Turn SMS/MMS filter on/off</string>
     <string name="setup_header">From here you can activate/deactivate actual SMS filter:</string>
     <string name="spinner_view_by">View by</string>
     <string name="radio_blacklist">Reject sms from phone numbers listed in blacklist</string>
@@ -17,6 +17,9 @@
     <string name="radio_contacts">Allow sms from contacts only</string>
     <string name="tbl_blocked_periode">Periode</string>
     <string name="tbl_blocked_total">Total</string>
+    <string name="turn_msg_filter_period_on_off_txt">Turn SMS/MMS filter periode on/off</string>
+    <string name="block_from_hour">From hour</string>
+    <string name="block_to_hour">To hour</string>
 
     <string-array name="sms_view_by_options">
         <item>Year</item>

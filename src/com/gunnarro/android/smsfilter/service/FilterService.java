@@ -116,21 +116,64 @@ public interface FilterService {
     // ******************************************************
 
     /**
-     * Tells whether the sms filter is activated or not.
+     * Method to check if the message filter and the filter period is active.
+     * 
+     * @return
+     */
+    public boolean isMsgFilterActive();
+
+    /**
+     * Tells whether the message filter is activated or not.
      * 
      * @return true id activated, false otherwise
      */
     public boolean isMsgFilterActivated();
 
     /**
-     * Method to turn sms filter on
+     * Tells whether the message filter period is activated or not.
+     * 
+     * @return true id activated, false otherwise
      */
-    public void activateSMSFilter();
+    public boolean isMsgFilterPeriodActivated();
 
     /**
-     * Method to turn sms filter off
+     * Method to turn message filter on
      */
-    public void deactivateSMSFilter();
+    public void activateMsgFilter();
+
+    /**
+     * Method to turn message filter off
+     */
+    public void deactivateMsgFilter();
+
+    /**
+     * Method to turn message filter time period on
+     */
+    public void activateMsgFilterPeriod();
+
+    /**
+     * Method to turn message filter time period off
+     */
+    public void deactivateMsgFilterPeriod();
+
+    /**
+     * 
+     * @param type
+     * @param time
+     */
+    public void updateMsgFilterPeriod(String type, long time);
+
+    /**
+     * 
+     * @return
+     */
+    public int getMsgFilterPeriodFromHour();
+
+    /**
+     * 
+     * @return
+     */
+    public int getMsgFilterPeriodToHour();
 
     /**
      * Method to check if all sms should be logged or not.

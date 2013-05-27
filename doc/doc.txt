@@ -24,6 +24,8 @@ Statistic for all blocked SMS can be viewed in a dedicated panel.
 
 For fist time installation the filter is turned off as default.
 
+No advertisements.
+
 Access
 -----------------------------------------------------
 This application require access to the following data on out phone:

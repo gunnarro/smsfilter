@@ -78,7 +78,7 @@ public class FilterRepositoryImpl implements FilterRepository {
         }
         CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
         boolean isActivated = setting != null ? Boolean.parseBoolean(setting.getValue()) : false;
-        CustomLog.i(this.getClass(), "is sms Filter activated=" + isActivated);
+        CustomLog.i(this.getClass(), "is msg Filter activated=" + isActivated);
         return isActivated;
     }
 
@@ -86,14 +86,140 @@ public class FilterRepositoryImpl implements FilterRepository {
      * {@inheritDoc}
      */
     @Override
-    public void updateSMSFilterActivated(boolean isActivated) {
+    public boolean isMsgFilterPeriodActivated() {
+        Setting setting = null;
+        String selection = SettingTable.COLUMN_KEY + " LIKE ?";
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_ACTIVATED };
+        String groupBy = null;
+        String orderBy = null;
+        this.database = dbHelper.getReadableDatabase();
+        Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, groupBy, null, orderBy);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            setting = mapCursorToSetting(cursor);
+        }
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (setting == null) {
+            throw new RuntimeException("Message Filter period setting not initialized! Please report bug!");
+        }
+        CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
+        boolean isActivated = setting != null ? Boolean.parseBoolean(setting.getValue()) : false;
+        CustomLog.i(this.getClass(), "is msg Filter period activated=" + isActivated);
+        return isActivated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateMsgFilterActivated(boolean isActivated) {
         StringBuffer where = new StringBuffer();
         where.append(SettingTable.COLUMN_KEY).append(" LIKE ?");
         String[] selectionArgs = { SettingTable.SMS_FILTER_ACTIVATED };
         ContentValues values = SettingTable.createContentValues(SettingTable.SMS_FILTER_ACTIVATED, Boolean.toString(isActivated));
         this.database = dbHelper.getWritableDatabase();
         database.update(SettingTable.TABLE_NAME, values, where.toString(), selectionArgs);
-        CustomLog.d(this.getClass(), "Updated Activated sms filter: " + isActivated);
+        CustomLog.d(this.getClass(), "Updated Activated msg filter: " + isActivated);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateMsgFilterPeriodActivated(boolean isActivated) {
+        StringBuffer where = new StringBuffer();
+        where.append(SettingTable.COLUMN_KEY).append(" LIKE ?");
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_ACTIVATED };
+        ContentValues values = SettingTable.createContentValues(SettingTable.SMS_FILTER_PERIOD_ACTIVATED, Boolean.toString(isActivated));
+        this.database = dbHelper.getWritableDatabase();
+        database.update(SettingTable.TABLE_NAME, values, where.toString(), selectionArgs);
+        CustomLog.d(this.getClass(), "Updated Activated msg filter period: " + isActivated);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateMsgFilterPeriodFromTime(long fromTime) {
+        StringBuffer where = new StringBuffer();
+        where.append(SettingTable.COLUMN_KEY).append(" LIKE ?");
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_FROM_TIME };
+        ContentValues values = SettingTable.createContentValues(SettingTable.SMS_FILTER_PERIOD_FROM_TIME, Long.toString(fromTime));
+        this.database = dbHelper.getWritableDatabase();
+        database.update(SettingTable.TABLE_NAME, values, where.toString(), selectionArgs);
+        CustomLog.d(this.getClass(), "Updated Activated msg filter period from time: " + fromTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateMsgFilterPeriodToTime(long toTime) {
+        StringBuffer where = new StringBuffer();
+        where.append(SettingTable.COLUMN_KEY).append(" LIKE ?");
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_TO_TIME };
+        ContentValues values = SettingTable.createContentValues(SettingTable.SMS_FILTER_PERIOD_TO_TIME, Long.toString(toTime));
+        this.database = dbHelper.getWritableDatabase();
+        database.update(SettingTable.TABLE_NAME, values, where.toString(), selectionArgs);
+        CustomLog.d(this.getClass(), "Updated Activated msg filter period to time: " + toTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getMsgFilterPeriodFromTime() {
+        Setting setting = null;
+        String selection = SettingTable.COLUMN_KEY + " LIKE ?";
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_FROM_TIME };
+        String groupBy = null;
+        String orderBy = null;
+        this.database = dbHelper.getReadableDatabase();
+        Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, groupBy, null, orderBy);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            setting = mapCursorToSetting(cursor);
+        }
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (setting == null) {
+            throw new RuntimeException("Message Filter from time setting not initialized! Please report bug!");
+        }
+        CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
+        int fromTime = setting != null ? Integer.parseInt(setting.getValue()) : 0;
+        CustomLog.i(this.getClass(), "msg Filter from time=" + fromTime);
+        return fromTime;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getMsgFilterPeriodToTime() {
+        Setting setting = null;
+        String selection = SettingTable.COLUMN_KEY + " LIKE ?";
+        String[] selectionArgs = { SettingTable.SMS_FILTER_PERIOD_TO_TIME };
+        String groupBy = null;
+        String orderBy = null;
+        this.database = dbHelper.getReadableDatabase();
+        Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, groupBy, null, orderBy);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            setting = mapCursorToSetting(cursor);
+        }
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (setting == null) {
+            throw new RuntimeException("Message Filter to time setting not initialized! Please report bug!");
+        }
+        CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
+        int fromTime = setting != null ? Integer.parseInt(setting.getValue()) : 0;
+        CustomLog.i(this.getClass(), "msg Filter to time=" + fromTime);
+        return fromTime;
     }
 
     /**
@@ -103,7 +229,7 @@ public class FilterRepositoryImpl implements FilterRepository {
     public boolean isLogMsg() {
         Setting setting = null;
         String selection = SettingTable.COLUMN_KEY + " LIKE ?";
-        String[] selectionArgs = { SettingTable.LOG_SMS };
+        String[] selectionArgs = { SettingTable.LOG_MSG };
         this.database = dbHelper.getReadableDatabase();
         Cursor cursor = database.query(SettingTable.TABLE_NAME, SettingTable.TABLE_COLUMNS, selection, selectionArgs, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
