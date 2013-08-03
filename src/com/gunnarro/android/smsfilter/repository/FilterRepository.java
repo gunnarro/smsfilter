@@ -62,22 +62,22 @@ public interface FilterRepository {
     /**
      * 
      */
-    public void updateMsgFilterPeriodFromTime(long fromTime);
+    public void updateMsgFilterPeriodFromTime(String fromTime);
 
     /**
      * 
      */
-    public void updateMsgFilterPeriodToTime(long toTime);
+    public void updateMsgFilterPeriodToTime(String toTime);
 
     /**
      * 
      */
-    public long getMsgFilterPeriodFromTime();
+    public String getMsgFilterPeriodFromTime();
 
     /**
      * 
      */
-    public long getMsgFilterPeriodToTime();
+    public String getMsgFilterPeriodToTime();
 
     /**
      * 

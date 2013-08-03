@@ -183,7 +183,9 @@ public class MsgStatisticFragment extends Fragment {
         return txtView;
     }
 
-    // for testing only
+    /**
+     *  for unit testing only
+     */
     @Deprecated
     private void addTestData() {
         int nextInt = new Random().nextInt(100);

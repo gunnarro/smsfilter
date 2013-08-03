@@ -9,176 +9,183 @@ import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeE
 
 public interface FilterService {
 
-    public static final String DEFAULT_VALUE = "";
+	public static final String DEFAULT_VALUE = "";
 
-    /**
-     * Method to search for name in the contact list for a given phone number
-     * 
-     * @param phoneNumber to find display name for
-     * @return contact display name
-     */
-    public String lookUpContacts(String phoneNumber);
+	/**
+	 * Method to search for name in the contact list for a given phone number
+	 * 
+	 * @param phoneNumber
+	 *            to find display name for
+	 * @return contact display name
+	 */
+	public String lookUpContacts(String phoneNumber);
 
-    /**
-     * Method to check if the phone number is blocked or not. If that's the
-     * case, the SMS is ignored and only logged to the SMSFilters blocked log.
-     * Otherwise, the SMS is handled as normal.
-     * 
-     * @param msg the message to check
-     * @return true if the phone number is blocked false otherwise.
-     */
-    public boolean isBlocked(Msg msg);
+	/**
+	 * Method to check if the phone number is blocked or not. If that's the
+	 * case, the SMS is ignored and only logged to the SMSFilters blocked log.
+	 * Otherwise, the SMS is handled as normal.
+	 * 
+	 * @param msg
+	 *            the message to check
+	 * @return true if the phone number is blocked false otherwise.
+	 */
+	public boolean isBlocked(Msg msg);
 
-    // ******************************************************
-    // Filter operations
-    // ******************************************************
+	// ******************************************************
+	// Filter operations
+	// ******************************************************
 
-    /**
-     * Method to get active filter type, which is stored in the internal app
-     * preference table.
-     * 
-     * @return selected filter type
-     */
-    public FilterTypeEnum getActiveFilterType();
+	/**
+	 * Method to get active filter type, which is stored in the internal app
+	 * preference table.
+	 * 
+	 * @return selected filter type
+	 */
+	public FilterTypeEnum getActiveFilterType();
 
-    /**
-     * Method to activate filter type
-     * 
-     */
-    public void activateFilterType(FilterTypeEnum filterType);
+	/**
+	 * Method to activate filter type
+	 * 
+	 */
+	public void activateFilterType(FilterTypeEnum filterType);
 
-    /**
-     * Method to de-activate filter type
-     * 
-     */
-    public void deActivateFilterType(FilterTypeEnum filterType);
+	/**
+	 * Method to de-activate filter type
+	 * 
+	 */
+	public void deActivateFilterType(FilterTypeEnum filterType);
 
-    // ******************************************************
-    // Item operations
-    // ******************************************************
-    /**
-     * 
-     * @param filterType
-     * @return
-     */
-    public List<Item> getItemList(String filterType);
+	// ******************************************************
+	// Item operations
+	// ******************************************************
+	/**
+	 * 
+	 * @param filterType
+	 * @return
+	 */
+	public List<Item> getItemList(String filterType);
 
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean deleteItem(Item item);
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
+	public boolean deleteItem(Item item);
 
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean updateItem(Item item);
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
+	public boolean updateItem(Item item);
 
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean createItem(String filterName, Item item);
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
+	public boolean createItem(String filterName, Item item);
 
-    // ******************************************************
-    // Log operations
-    // ******************************************************
+	// ******************************************************
+	// Log operations
+	// ******************************************************
 
-    public List<MsgLog> getLogsStartDateAndEndDate();
+	public List<MsgLog> getLogsStartDateAndEndDate();
 
-    /**
-     * 
-     * @param groupBy
-     * @return
-     */
-    public List<MsgLog> getLogs(String groupBy, String msgType);
+	/**
+	 * 
+	 * @param groupBy
+	 * @return
+	 */
+	public List<MsgLog> getLogs(String groupBy, String msgType);
 
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean createLog(MsgLog log);
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
+	public boolean createLog(MsgLog log);
 
-    /**
-     * 
-     * @param item
-     * @return
-     */
-    public boolean removeAllLog(String msgType);
+	/**
+	 * 
+	 * @param item
+	 * @return
+	 */
+	public boolean removeAllLog(String msgType);
 
-    // ******************************************************
-    // Settings operations
-    // ******************************************************
+	// ******************************************************
+	// Settings operations
+	// ******************************************************
 
-    /**
-     * Method to check if the message filter and the filter period is active.
-     * 
-     * @return
-     */
-    public boolean isMsgFilterActive();
+	/**
+	 * Method to check if the message filter and the filter period is active.
+	 * 
+	 * @return
+	 */
+	public boolean isMsgFilterActive();
 
-    /**
-     * Tells whether the message filter is activated or not.
-     * 
-     * @return true id activated, false otherwise
-     */
-    public boolean isMsgFilterActivated();
+	/**
+	 * Tells whether the message filter is activated or not.
+	 * 
+	 * @return true id activated, false otherwise
+	 */
+	public boolean isMsgFilterActivated();
 
-    /**
-     * Tells whether the message filter period is activated or not.
-     * 
-     * @return true id activated, false otherwise
-     */
-    public boolean isMsgFilterPeriodActivated();
+	/**
+	 * Tells whether the message filter period is activated or not.
+	 * 
+	 * @return true id activated, false otherwise
+	 */
+	public boolean isMsgFilterPeriodActivated();
 
-    /**
-     * Method to turn message filter on
-     */
-    public void activateMsgFilter();
+	/**
+	 * Method to turn message filter on
+	 */
+	public void activateMsgFilter();
 
-    /**
-     * Method to turn message filter off
-     */
-    public void deactivateMsgFilter();
+	/**
+	 * Method to turn message filter off
+	 */
+	public void deactivateMsgFilter();
 
-    /**
-     * Method to turn message filter time period on
-     */
-    public void activateMsgFilterPeriod();
+	/**
+	 * Method to turn message filter time period on
+	 */
+	public void activateMsgFilterPeriod();
 
-    /**
-     * Method to turn message filter time period off
-     */
-    public void deactivateMsgFilterPeriod();
+	/**
+	 * Method to turn message filter time period off
+	 */
+	public void deactivateMsgFilterPeriod();
 
-    /**
-     * 
-     * @param type
-     * @param time
-     */
-    public void updateMsgFilterPeriod(String type, long time);
+	/**
+	 * 
+	 * @param time
+	 */
+	public void updateMsgFilterPeriodFromTime(String time);
 
-    /**
-     * 
-     * @return
-     */
-    public int getMsgFilterPeriodFromHour();
+	/**
+	 * 
+	 * @param time
+	 */
+	public void updateMsgFilterPeriodToTime(String time);
 
-    /**
-     * 
-     * @return
-     */
-    public int getMsgFilterPeriodToHour();
+	/**
+	 * 
+	 * @return
+	 */
+	public String getMsgFilterPeriodFromHour();
 
-    /**
-     * Method to check if all sms should be logged or not.
-     * 
-     * @return
-     */
-    public boolean isLogMsg();
+	/**
+	 * 
+	 * @return
+	 */
+	public String getMsgFilterPeriodToHour();
+
+	/**
+	 * Method to check if all sms should be logged or not.
+	 * 
+	 * @return
+	 */
+	public boolean isLogMsg();
 }

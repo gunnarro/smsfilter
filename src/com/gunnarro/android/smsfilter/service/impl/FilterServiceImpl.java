@@ -1,7 +1,10 @@
 package com.gunnarro.android.smsfilter.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -17,7 +20,6 @@ import com.gunnarro.android.smsfilter.domain.MsgLog;
 import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.repository.FilterRepository;
 import com.gunnarro.android.smsfilter.repository.impl.FilterRepositoryImpl;
-import com.gunnarro.android.smsfilter.repository.table.SettingTable;
 import com.gunnarro.android.smsfilter.service.FilterService;
 
 /**
@@ -29,407 +31,436 @@ import com.gunnarro.android.smsfilter.service.FilterService;
  */
 public class FilterServiceImpl implements FilterService {
 
-    private FilterRepository filterRepository;
-    private Context context;
+	private FilterRepository filterRepository;
+	private Context context;
 
-    public enum FilterTypeEnum {
-        SMS_BLACK_LIST, SMS_WHITE_LIST, CONTACTS;
+	public enum FilterTypeEnum {
+		SMS_BLACK_LIST, SMS_WHITE_LIST, CONTACTS;
 
-        public boolean isContacts() {
-            return this.equals(FilterTypeEnum.CONTACTS);
-        }
+		public boolean isContacts() {
+			return this.equals(FilterTypeEnum.CONTACTS);
+		}
 
-        public boolean isWhiteList() {
-            return this.equals(FilterTypeEnum.SMS_WHITE_LIST);
-        }
+		public boolean isWhiteList() {
+			return this.equals(FilterTypeEnum.SMS_WHITE_LIST);
+		}
 
-        public boolean isBlackList() {
-            return this.equals(FilterTypeEnum.SMS_BLACK_LIST);
-        }
+		public boolean isBlackList() {
+			return this.equals(FilterTypeEnum.SMS_BLACK_LIST);
+		}
 
-    }
+	}
 
-    /**
-     * default constructor, used for unit testing only.
-     */
-    public FilterServiceImpl() {
-    }
+	/**
+	 * default constructor, used for unit testing only.
+	 */
+	public FilterServiceImpl() {
+	}
 
-    /**
-     * 
-     * @param context
-     */
-    public FilterServiceImpl(Context context) {
-        // The repository is opened and closed by the activity that use the
-        // filter service. Which is done in the onPause() and onResume() methods
-        // of the activity.
-        this.context = context;
-        this.filterRepository = new FilterRepositoryImpl(this.context);
-        this.filterRepository.open();
-    }
+	/**
+	 * 
+	 * @param context
+	 */
+	public FilterServiceImpl(Context context) {
+		// The repository is opened and closed by the activity that use the
+		// filter service. Which is done in the onPause() and onResume() methods
+		// of the activity.
+		this.context = context;
+		this.filterRepository = new FilterRepositoryImpl(this.context);
+		this.filterRepository.open();
+	}
 
-    public static String createSearch(String value) {
-        if (value == null || value.isEmpty()) {
-            return "";
-        }
-        String filter = "^" + value.replace("*", "") + ".*";
-        if (value.startsWith("+")) {
-            filter = "^\\" + value.replace("*", "") + ".*";
-        } else if (value.startsWith("hidden")) {
-            filter = "[0-9,+]{8,19}";
-        }
-        return filter;
-    }
+	public static String createSearch(String value) {
+		if (value == null || value.isEmpty()) {
+			return "";
+		}
+		String filter = "^" + value.replace("*", "") + ".*";
+		if (value.startsWith("+")) {
+			filter = "^\\" + value.replace("*", "") + ".*";
+		} else if (value.startsWith("hidden")) {
+			filter = "[0-9,+]{8,19}";
+		}
+		return filter;
+	}
 
-    /**
-     * Method to search for a given value in a list.
-     * 
-     * @param type list type which holds the item.
-     * @param value value to search after
-     * @return true if the list contains the item, false otherwise.
-     */
-    private Item searchList(String type, String value) {
-        List<Item> itemList = filterRepository.getItemList(type);
-        for (Item item : itemList) {
-            String filter = createSearch(item.getValue());
-            if (value.matches(filter)) {
-                CustomLog.i(FilterServiceImpl.class, "HIT value=" + value + ", filter=" + filter);
-                return item;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Method to search for a given value in a list.
+	 * 
+	 * @param type
+	 *            list type which holds the item.
+	 * @param value
+	 *            value to search after
+	 * @return true if the list contains the item, false otherwise.
+	 */
+	private Item searchList(String type, String value) {
+		List<Item> itemList = filterRepository.getItemList(type);
+		for (Item item : itemList) {
+			String filter = createSearch(item.getValue());
+			if (value.matches(filter)) {
+				CustomLog.i(FilterServiceImpl.class, "HIT value=" + value + ", filter=" + filter);
+				return item;
+			}
+		}
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isLogMsg() {
-        return this.filterRepository.isLogMsg();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isLogMsg() {
+		return this.filterRepository.isLogMsg();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isMsgFilterPeriodActivated() {
-        return this.filterRepository.isMsgFilterPeriodActivated();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isMsgFilterPeriodActivated() {
+		return this.filterRepository.isMsgFilterPeriodActivated();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isMsgFilterActivated() {
-        return this.filterRepository.isMsgFilterActivated();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isMsgFilterActivated() {
+		return this.filterRepository.isMsgFilterActivated();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isMsgFilterActive() {
-        boolean msgFilterActivated = this.filterRepository.isMsgFilterActivated();
-        if (!msgFilterActivated) {
-            return false;
-        }
-        // the msg filter is activated, so we have to check if the time period
-        // is activated also
-        boolean msgFilterPeriodActivated = this.filterRepository.isMsgFilterPeriodActivated();
-        if (!msgFilterPeriodActivated) {
-            // do not care about the time, only message filter is activated, so
-            // return true;
-            return true;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isMsgFilterActive() {
+		boolean msgFilterActivated = this.filterRepository.isMsgFilterActivated();
+		if (!msgFilterActivated) {
+			return false;
+		}
+		// the msg filter is activated, so we have to check if the time period
+		// is activated also
+		boolean msgFilterPeriodActivated = this.filterRepository.isMsgFilterPeriodActivated();
+		if (!msgFilterPeriodActivated) {
+			// do not care about the time, only message filter is activated, so
+			// return true;
+			return true;
+		}
 
-        // The time period is turned on, so we have the check if current time is
-        // in out outside of the selected time period.
-        long fromTime = filterRepository.getMsgFilterPeriodFromTime();
-        long toTime = filterRepository.getMsgFilterPeriodToTime();
+		// The time period is turned on, so we have the check if current time is
+		// in out outside of the selected time period.
+		String fromTime = filterRepository.getMsgFilterPeriodFromTime();
+		String toTime = filterRepository.getMsgFilterPeriodToTime();
 
-        return isInActiveTimePeriode(fromTime, toTime);
-    }
+		return isInActiveTimePeriode(fromTime, toTime);
+	}
 
-    private boolean isInActiveTimePeriode(long fromTime, long toTime) {
-        if (fromTime == 0 || toTime == 0) {
-            // time period not set, return true
-            return true;
-        }
-        Calendar currentTime = Calendar.getInstance();
-        Calendar fromTimeCal = Calendar.getInstance();
-        fromTimeCal.setTimeInMillis(fromTime);
-        Calendar toTimeCal = Calendar.getInstance();
-        toTimeCal.setTimeInMillis(toTime);
+	private static boolean isEmpty(String s) {
+		if (s == null || s.length() == 0) {
+			return true;
+		}
+		return false;
+	}
 
-        if (currentTime.get(Calendar.HOUR_OF_DAY) > fromTimeCal.get(Calendar.HOUR_OF_DAY)
-                && currentTime.get(Calendar.HOUR_OF_DAY) < toTimeCal.get(Calendar.HOUR_OF_DAY)) {
-            return true;
-        }
-        return false;
-    }
+	private static boolean isInActiveTimePeriode(String fromTime, String toTime) {
+		if (isEmpty(fromTime) || isEmpty(toTime)) {
+			// time period not set, return true
+			return true;
+		}
+		Calendar currentTime = Calendar.getInstance();
+		Calendar fromTimeCal = Calendar.getInstance();
+		Calendar toTimeCal = Calendar.getInstance();
+		String pattern = "HH:mm";
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		try {
+			Date to = sdf.parse(toTime);
+			Date from = sdf.parse(fromTime);
+			fromTimeCal.setTime(from);
+			toTimeCal.setTime(to);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		if ((currentTime.get(Calendar.HOUR_OF_DAY) > fromTimeCal.get(Calendar.HOUR_OF_DAY) && currentTime.get(Calendar.MINUTE) > fromTimeCal
+				.get(Calendar.MINUTE))
+				&& (currentTime.get(Calendar.HOUR_OF_DAY) < toTimeCal.get(Calendar.HOUR_OF_DAY) && currentTime.get(Calendar.MINUTE) < toTimeCal
+						.get(Calendar.MINUTE))) {
+			return true;
+		}
+		return false;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void activateMsgFilter() {
-        this.filterRepository.updateMsgFilterActivated(true);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void activateMsgFilter() {
+		this.filterRepository.updateMsgFilterActivated(true);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deactivateMsgFilter() {
-        this.filterRepository.updateMsgFilterActivated(false);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deactivateMsgFilter() {
+		this.filterRepository.updateMsgFilterActivated(false);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void activateMsgFilterPeriod() {
-        this.filterRepository.updateMsgFilterPeriodActivated(true);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void activateMsgFilterPeriod() {
+		this.filterRepository.updateMsgFilterPeriodActivated(true);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deactivateMsgFilterPeriod() {
-        this.filterRepository.updateMsgFilterPeriodActivated(false);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deactivateMsgFilterPeriod() {
+		this.filterRepository.updateMsgFilterPeriodActivated(false);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateMsgFilterPeriod(String type, long time) {
-        if (type.equals(SettingTable.SMS_FILTER_PERIOD_FROM_TIME)) {
-            this.filterRepository.updateMsgFilterPeriodFromTime(time);
-        } else if ((type.equals(SettingTable.SMS_FILTER_PERIOD_TO_TIME))) {
-            this.filterRepository.updateMsgFilterPeriodToTime(time);
-        } else {
-            CustomLog.e(FilterServiceImpl.class, "Bug unkown msg filter period type: " + type);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateMsgFilterPeriodFromTime(String time) {
+		this.filterRepository.updateMsgFilterPeriodFromTime(time);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getMsgFilterPeriodFromHour() {
-        Calendar instance = Calendar.getInstance();
-        instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodFromTime());
-        return instance.get(Calendar.HOUR_OF_DAY);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateMsgFilterPeriodToTime(String time) {
+		this.filterRepository.updateMsgFilterPeriodToTime(time);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getMsgFilterPeriodToHour() {
-        Calendar instance = Calendar.getInstance();
-        instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodToTime());
-        return instance.get(Calendar.HOUR_OF_DAY);
-    }
+	private void checkFromTimePeriode(String from) {
+		String to = getMsgFilterPeriodToHour();
+		if (true) {
+			// invalid
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMsgFilterPeriodFromHour() {
+		// Calendar instance = Calendar.getInstance();
+		// instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodFromTime());
+		// return instance.get(Calendar.HOUR_OF_DAY);
+		return this.filterRepository.getMsgFilterPeriodFromTime();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isBlocked(Msg msg) {
-        boolean isBlocked = false;
-        FilterTypeEnum activeFilterType = getActiveFilterType();
-        if (activeFilterType == null) {
-            CustomLog.e(FilterServiceImpl.class, "isBlocked(): BUG: filter type not found, do not block sms!");
-            return false;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMsgFilterPeriodToHour() {
+		// Calendar instance = Calendar.getInstance();
+		// instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodToTime());
+		// return instance.get(Calendar.HOUR_OF_DAY);
+		return this.filterRepository.getMsgFilterPeriodToTime();
+	}
 
-        if (activeFilterType.isContacts()) {
-            // Check contact list
-            if (!isInContactList(msg.getPhoneNumber())) {
-                isBlocked = true;
-            }
-        } else if (activeFilterType.isBlackList()) {
-            Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
-            if (item != null && item.isEnabled()) {
-                isBlocked = true;
-            }
-        } else if (activeFilterType.isWhiteList()) {
-            Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
-            if (item == null || (item != null && !item.isEnabled())) {
-                isBlocked = true;
-            }
-        }
-        if (isBlocked) {
-            logBlockedMsg(msg.getPhoneNumber(), activeFilterType.name(), msg.getType());
-        }
-        CustomLog.d(FilterServiceImpl.class, ".isBlocked(): Filter type=" + activeFilterType + "," + msg.toString() + ", isBlocked=" + isBlocked);
-        return isBlocked;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isBlocked(Msg msg) {
+		boolean isBlocked = false;
+		FilterTypeEnum activeFilterType = getActiveFilterType();
+		if (activeFilterType == null) {
+			CustomLog.e(FilterServiceImpl.class, "isBlocked(): BUG: filter type not found, do not block sms!");
+			return false;
+		}
 
-    private void logBlockedMsg(String phoneNumber, String filterType, String msgType) {
-        filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, MsgLog.STATUS_MSG_BLOCKED, filterType));
-    }
+		if (activeFilterType.isContacts()) {
+			// Check contact list
+			if (!isInContactList(msg.getPhoneNumber())) {
+				isBlocked = true;
+			}
+		} else if (activeFilterType.isBlackList()) {
+			Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
+			if (item != null && item.isEnabled()) {
+				isBlocked = true;
+			}
+		} else if (activeFilterType.isWhiteList()) {
+			Item item = searchList(activeFilterType.name(), msg.getPhoneNumber());
+			if (item == null || (item != null && !item.isEnabled())) {
+				isBlocked = true;
+			}
+		}
+		if (isBlocked) {
+			logBlockedMsg(msg.getPhoneNumber(), activeFilterType.name(), msg.getType());
+		}
+		CustomLog.d(FilterServiceImpl.class, ".isBlocked(): Filter type=" + activeFilterType + "," + msg.toString() + ", isBlocked=" + isBlocked);
+		return isBlocked;
+	}
 
-    private boolean isInContactList(String phoneNumber) {
-        return lookUpContacts(phoneNumber) != null ? true : false;
-    }
+	private void logBlockedMsg(String phoneNumber, String filterType, String msgType) {
+		filterRepository.createLog(new SMSLog(Calendar.getInstance().getTimeInMillis(), phoneNumber, MsgLog.STATUS_MSG_BLOCKED, filterType));
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String lookUpContacts(String phoneNumber) {
-        String contactDisplayName = null;
-        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
-        String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
-        // Query the filter URI
-        Cursor cursor = this.context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null && cursor.getCount() > 0) {
-            if (cursor.moveToFirst()) {
-                contactDisplayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-            }
-            cursor.close();
-        }
-        return contactDisplayName;
-    }
+	private boolean isInContactList(String phoneNumber) {
+		return lookUpContacts(phoneNumber) != null ? true : false;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FilterTypeEnum getActiveFilterType() {
-        Filter activeFilter = this.filterRepository.getActiveFilter();
-        if (activeFilter != null) {
-            return FilterTypeEnum.valueOf(activeFilter.getName());
-        } else {
-            return null;
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String lookUpContacts(String phoneNumber) {
+		String contactDisplayName = null;
+		Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+		String[] projection = new String[] { ContactsContract.PhoneLookup.DISPLAY_NAME };
+		// Query the filter URI
+		Cursor cursor = this.context.getContentResolver().query(uri, projection, null, null, null);
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				contactDisplayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+			}
+			cursor.close();
+		}
+		return contactDisplayName;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void activateFilterType(FilterTypeEnum filterType) {
-        if (filterType != null) {
-            filterRepository.updateFilter(new Filter(filterType.name(), true));
-        } else {
-            CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FilterTypeEnum getActiveFilterType() {
+		Filter activeFilter = this.filterRepository.getActiveFilter();
+		if (activeFilter != null) {
+			return FilterTypeEnum.valueOf(activeFilter.getName());
+		} else {
+			return null;
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deActivateFilterType(FilterTypeEnum filterType) {
-        if (filterType != null) {
-            filterRepository.updateFilter(new Filter(filterType.name(), false));
-        } else {
-            CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void activateFilterType(FilterTypeEnum filterType) {
+		if (filterType != null) {
+			filterRepository.updateFilter(new Filter(filterType.name(), true));
+		} else {
+			CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
+		}
+	}
 
-    // ******************************************************
-    // Item operations
-    // ******************************************************
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Item> getItemList(String filterType) {
-        return this.filterRepository.getItemList(filterType);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deActivateFilterType(FilterTypeEnum filterType) {
+		if (filterType != null) {
+			filterRepository.updateFilter(new Filter(filterType.name(), false));
+		} else {
+			CustomLog.e(FilterServiceImpl.class, "BUG! Filter type was null!");
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean deleteItem(Item item) {
-        return this.filterRepository.deleteItem(item);
-    }
+	// ******************************************************
+	// Item operations
+	// ******************************************************
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Item> getItemList(String filterType) {
+		return this.filterRepository.getItemList(filterType);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean updateItem(Item item) {
-        return this.filterRepository.updateItem(item);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean deleteItem(Item item) {
+		return this.filterRepository.deleteItem(item);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean createItem(String filterName, Item item) {
-        // get filter id for selected filter name
-        Filter filter = filterRepository.getFilter(filterName);
-        // tie this item to correct filter id
-        item.setFkFilterId(filter.getId());
-        return this.filterRepository.createItem(item);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateItem(Item item) {
+		return this.filterRepository.updateItem(item);
+	}
 
-    // ******************************************************
-    // Log operations
-    // ******************************************************
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean createItem(String filterName, Item item) {
+		// get filter id for selected filter name
+		Filter filter = filterRepository.getFilter(filterName);
+		// tie this item to correct filter id
+		item.setFkFilterId(filter.getId());
+		return this.filterRepository.createItem(item);
+	}
 
-    /**
-     * 
-     * @return
-     */
-    @Override
-    public List<MsgLog> getLogsStartDateAndEndDate() {
-        List<MsgLog> list = new ArrayList<MsgLog>();
-        List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
-        if (logListOrderByDate.size() == 0) {
-            return null;
-        } else if (logListOrderByDate.size() == 1) {
-            list.add(logListOrderByDate.get(0));
-            list.add(logListOrderByDate.get(0));
-        } else if (logListOrderByDate.size() > 1) {
-            list.add(logListOrderByDate.get(0));
-            list.add(logListOrderByDate.get(logListOrderByDate.size() - 1));
-        }
-        return list;
-    }
+	// ******************************************************
+	// Log operations
+	// ******************************************************
 
-    public MsgLog getLogsEndDate() {
-        List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
-        return logListOrderByDate.size() > 0 ? logListOrderByDate.get(0) : null;
-    }
+	/**
+	 * 
+	 * @return
+	 */
+	@Override
+	public List<MsgLog> getLogsStartDateAndEndDate() {
+		List<MsgLog> list = new ArrayList<MsgLog>();
+		List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
+		if (logListOrderByDate.size() == 0) {
+			return null;
+		} else if (logListOrderByDate.size() == 1) {
+			list.add(logListOrderByDate.get(0));
+			list.add(logListOrderByDate.get(0));
+		} else if (logListOrderByDate.size() > 1) {
+			list.add(logListOrderByDate.get(0));
+			list.add(logListOrderByDate.get(logListOrderByDate.size() - 1));
+		}
+		return list;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<MsgLog> getLogs(String groupBy, String msgType) {
-        return filterRepository.getLogList(groupBy, msgType);
-    }
+	public MsgLog getLogsEndDate() {
+		List<MsgLog> logListOrderByDate = filterRepository.getLogListOrderByDate("%");
+		return logListOrderByDate.size() > 0 ? logListOrderByDate.get(0) : null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean createLog(MsgLog log) {
-        return filterRepository.createLog(log);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MsgLog> getLogs(String groupBy, String msgType) {
+		return filterRepository.getLogList(groupBy, msgType);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean removeAllLog(String msgType) {
-        return filterRepository.removeAllLog(msgType);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean createLog(MsgLog log) {
+		return filterRepository.createLog(log);
+	}
 
-    /**
-     * for unit testing only
-     */
-    public void setFilterRepository(FilterRepository filterRepository) {
-        this.filterRepository = filterRepository;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean removeAllLog(String msgType) {
+		return filterRepository.removeAllLog(msgType);
+	}
+
+	/**
+	 * for unit testing only
+	 */
+	public void setFilterRepository(FilterRepository filterRepository) {
+		this.filterRepository = filterRepository;
+	}
 
 }
