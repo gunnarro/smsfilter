@@ -189,7 +189,7 @@ public class FilterRepositoryImpl implements FilterRepository {
             throw new RuntimeException("Message Filter from time setting not initialized! Please report bug!");
         }
         CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
-        String fromTime = setting != null ? setting.getValue() : "na";
+        String fromTime = setting != null ? setting.getValue() : null;
         CustomLog.i(this.getClass(), "msg Filter from time=" + fromTime);
         return fromTime;
     }
@@ -217,7 +217,7 @@ public class FilterRepositoryImpl implements FilterRepository {
             throw new RuntimeException("Message Filter to time setting not initialized! Please report bug!");
         }
         CustomLog.d(this.getClass(), "type=" + setting.getName() + " value=" + setting.getValue());
-        String fromTime = setting != null ? setting.getValue() : "na";
+        String fromTime = setting != null ? setting.getValue() : null;
         CustomLog.i(this.getClass(), "msg Filter to time=" + fromTime);
         return fromTime;
     }

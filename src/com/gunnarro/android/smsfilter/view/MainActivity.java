@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.gunnarro.android.smsfilter.R;
-import com.gunnarro.android.smsfilter.custom.CustomLog;
 
 public class MainActivity extends Activity {
 
@@ -38,19 +37,6 @@ public class MainActivity extends Activity {
 				.setTabListener(new TabListener<WhiteListFragment>(this, WhiteListFragment.class.getSimpleName(), WhiteListFragment.class)));
 		actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked)
 				.setTabListener(new TabListener<MsgStatisticFragment>(this, MsgStatisticFragment.class.getSimpleName(), MsgStatisticFragment.class)));
-
-		// actionbar.addTab(actionbar.newTab().setText(R.string.tab_setup).setTabListener(new
-		// MyTabsListener<Fragment>(new SetupFragment())));
-		// // .setIcon(R.drawable.config_tab));
-		// actionbar.addTab(actionbar.newTab().setText(R.string.tab_blacklist).setTabListener(new
-		// MyTabsListener<Fragment>(new BlackListFragment())));
-		// // .setIcon(R.drawable.black_list_tab));
-		// actionbar.addTab(actionbar.newTab().setText(R.string.tab_whitelist).setTabListener(new
-		// MyTabsListener<Fragment>(new WhiteListFragment())));
-		// // .setIcon(R.drawable.white_list_tab));
-		// actionbar.addTab(actionbar.newTab().setText(R.string.tab_blocked).setTabListener(new
-		// MyTabsListener<Fragment>(new MsgStatisticFragment())));
-		// // .setIcon(R.drawable.blocked_sms_history_tab));
 
 		if (savedInstanceState != null) {
 			actionbar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
@@ -99,44 +85,13 @@ public class MainActivity extends Activity {
 		return null;
 	}
 
-	// /**
-	// * Custom implementation of tab listener
-	// */
-	// class MyTabsListener<T extends Fragment> implements ActionBar.TabListener
-	// {
-	// public Fragment fragment;
-	//
-	// public MyTabsListener(Fragment fragment) {
-	// this.fragment = fragment;
-	// }
-	//
-	// /**
-	// * {@inheritDoc}
-	// */
-	// @Override
-	// public void onTabReselected(Tab tab, FragmentTransaction ft) {
-	// }
-	//
-	// /**
-	// * {@inheritDoc}
-	// */
-	// @Override
-	// public void onTabSelected(Tab tab, FragmentTransaction ft) {
-	// ft.replace(R.id.main, fragment);
-	// CustomLog.d(this.getClass(), "id=" + fragment.getId() + ", " +
-	// fragment.toString());
-	// }
-	//
-	// /**
-	// * {@inheritDoc}
-	// */
-	// @Override
-	// public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-	// ft.remove(fragment);
-	// }
-	//
-	// } // end class MyTabListener
-
+	/**
+	 * Custom tab listener class
+	 * 
+	 * @author admin
+	 * 
+	 * @param <T>
+	 */
 	public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
 		private final Activity activity;
 		private final String tag;
@@ -165,6 +120,10 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		public void onTabSelected(Tab tab, FragmentTransaction ft) {
 			if (this.fragment == null) {
 				this.fragment = Fragment.instantiate(this.activity, this.clazz.getName(), this.args);
@@ -174,14 +133,21 @@ public class MainActivity extends Activity {
 			}
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 			if (this.fragment != null) {
 				ft.detach(this.fragment);
 			}
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
 		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			Toast.makeText(this.activity, "Reselected!", Toast.LENGTH_SHORT).show();
 		}
 
 	} // end class TabListener

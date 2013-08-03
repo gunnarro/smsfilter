@@ -1,36 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="1dp"
-    android:layout_marginLeft="1dp"
-    android:layout_marginRight="1dp"
-    android:layout_marginTop="1dp"
-    android:gravity="top"
-    android:orientation="vertical" >
+    android:background="#000000"
+    android:shrinkColumns="*"
+    android:stretchColumns="*" >
 
-    <Switch
-        android:id="@+id/msg_filter_on_off_switch"
-        android:layout_width="wrap_content"
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="@string/turn_filter_on_off_txt"
-        android:textOff="@string/switch_txt_off"
-        android:textOn="@string/switch_txt_on" />
+        android:gravity="center_horizontal"
+        android:paddingLeft="5dip" >
 
-    <TextView
-        android:id="@+id/info"
-        android:layout_width="match_parent"
+        <Switch
+            android:id="@+id/msg_filter_on_off_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="3"
+            android:checked="false"
+            android:padding="2dip"
+            android:text="@string/turn_filter_on_off_txt"
+            android:textOff="@string/switch_txt_off"
+            android:textOn="@string/switch_txt_on" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_on_off_switch"
-        android:gravity="left"
-        android:text="@string/setup_header" />
+        android:gravity="center_horizontal"
+        android:paddingLeft="5dip" >
+
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="3"
+            android:gravity="left"
+            android:padding="2dip"
+            android:text="@string/setup_header" />
+    </TableRow>
+
+    <!-- RadioGroup is a ViewGroup and so it is TableRow -->
 
     <RadioGroup
         android:id="@+id/radio_msg_filter_options"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/info" >
+        android:gravity="left"
+        android:paddingLeft="5dip" >
 
         <RadioButton
             android:id="@+id/radio_contacts"
@@ -51,75 +68,87 @@
             android:text="@string/radio_blacklist" />
     </RadioGroup>
 
-    <Switch
-        android:id="@+id/msg_filter_period_on_off_switch"
+    <TableRow
+        android:id="@+id/tableRow1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/radio_msg_filter_options"
-        android:checked="false"
-        android:text="@string/turn_msg_filter_period_on_off_txt"
-        android:textOff="@string/switch_txt_off"
-        android:textOn="@string/switch_txt_on" />
+        android:layout_height="wrap_content" >
+    </TableRow>
 
-    <TextView
-        android:id="@+id/msg_filter_from_time_lbl"
-        android:layout_width="match_parent"
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_period_on_off_switch"
-        android:text="@string/block_from_hour" />
+        android:gravity="center_horizontal"
+        android:paddingLeft="5dip" >
 
-    <TextView
-        android:id="@+id/msg_filter_from_time_value"
-        android:layout_width="match_parent"
+        <Switch
+            android:id="@+id/msg_filter_period_on_off_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="3"
+            android:checked="false"
+            android:padding="2dip"
+            android:text="@string/turn_msg_filter_period_on_off_txt"
+            android:textOff="@string/switch_txt_off"
+            android:textOn="@string/switch_txt_on" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_from_time_lbl"
-        android:text="@string/na" />
+        android:gravity="left"
+        android:paddingLeft="5dip" >
 
-    <ImageButton
-        android:id="@+id/msg_filter_from_time_btn"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/msg_filter_from_time_lbl"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="2dip"
+            android:text="@string/block_from_hour" />
+
+        <TextView
+            android:id="@+id/msg_filter_from_time_value"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="2dip"
+            android:text="@string/na" />
+
+        <ImageButton
+            android:id="@+id/msg_filter_from_time_btn"
+            android:layout_weight="1"
+            android:contentDescription="@string/na"
+            android:onClick="showTimePickerDlg"
+            android:padding="2dip"
+            android:src="@drawable/calendar" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/msg_filter_from_time_value"
-        android:contentDescription="@string/na"
-        android:onClick="showTimePickerDlg"
-        android:src="@drawable/calendar" />
+        android:gravity="left"
+        android:paddingLeft="5dip" >
 
-    <TextView
-        android:id="@+id/msg_filter_to_time_lbl"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_from_time_value"
-        android:text="@string/block_to_hour" />
+        <TextView
+            android:id="@+id/msg_filter_to_time_lbl"
+            android:layout_weight="1"
+            android:maxWidth="25dip"
+            android:padding="2dip"
+            android:text="@string/block_to_hour" />
 
-    <TextView
-        android:id="@+id/msg_filter_to_time_value"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_to_time_lbl"
-        android:text="@string/na" />
+        <TextView
+            android:id="@+id/msg_filter_to_time_value"
+            android:layout_weight="1"
+            android:padding="2dip"
+            android:text="@string/na" />
 
-    <ImageButton
-        android:id="@+id/msg_filter_to_time_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_to_time_value"
-        android:contentDescription="@string/na"
-        android:src="@drawable/calendar" />
+        <ImageButton
+            android:id="@+id/msg_filter_to_time_btn"
+            android:layout_weight="1"
+            android:contentDescription="@string/na"
+            android:onClick="showTimePickerDlg"
+            android:padding="2dip"
+            android:src="@drawable/calendar" />
+    </TableRow>
 
-    <!--
-    <TimePicker
-        android:id="@+id/msg_filter_from_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_period_on_off_switch"
-        android:text="@string/block_from_hour" />
-
-    <TimePicker
-        android:id="@+id/msg_filter_to_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/msg_filter_from_time"
-        android:text="@string/block_to_hour" />
-    -->
-
-</RelativeLayout>
+</TableLayout>

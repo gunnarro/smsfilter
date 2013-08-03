@@ -236,21 +236,11 @@ public class FilterServiceImpl implements FilterService {
 		this.filterRepository.updateMsgFilterPeriodToTime(time);
 	}
 
-	private void checkFromTimePeriode(String from) {
-		String to = getMsgFilterPeriodToHour();
-		if (true) {
-			// invalid
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getMsgFilterPeriodFromHour() {
-		// Calendar instance = Calendar.getInstance();
-		// instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodFromTime());
-		// return instance.get(Calendar.HOUR_OF_DAY);
+	public String getMsgFilterPeriodFromTime() {
 		return this.filterRepository.getMsgFilterPeriodFromTime();
 	}
 
@@ -258,10 +248,7 @@ public class FilterServiceImpl implements FilterService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getMsgFilterPeriodToHour() {
-		// Calendar instance = Calendar.getInstance();
-		// instance.setTimeInMillis(this.filterRepository.getMsgFilterPeriodToTime());
-		// return instance.get(Calendar.HOUR_OF_DAY);
+	public String getMsgFilterPeriodToTime() {
 		return this.filterRepository.getMsgFilterPeriodToTime();
 	}
 

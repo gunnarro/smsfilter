@@ -174,13 +174,13 @@ public interface FilterService {
 	 * 
 	 * @return
 	 */
-	public String getMsgFilterPeriodFromHour();
+	public String getMsgFilterPeriodFromTime();
 
 	/**
 	 * 
 	 * @return
 	 */
-	public String getMsgFilterPeriodToHour();
+	public String getMsgFilterPeriodToTime();
 
 	/**
 	 * Method to check if all sms should be logged or not.

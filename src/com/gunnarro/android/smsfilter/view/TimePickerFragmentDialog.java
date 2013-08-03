@@ -19,6 +19,15 @@ import com.gunnarro.android.smsfilter.listener.TimePickerSelectedListener;
 
 public class TimePickerFragmentDialog extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
+	public enum TypeEnum {
+		FROM_TIME, TO_TIME;
+	}
+
+	public enum ArgsEnum {
+		TYPE, HOUR, MINUTE;
+	}
+
+	private TypeEnum type = TypeEnum.FROM_TIME;
 	private TimePickerSelectedListener listener;
 
 	/**
@@ -41,10 +50,18 @@ public class TimePickerFragmentDialog extends DialogFragment implements TimePick
 	 */
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Bundle args = this.getArguments();
+		type = TypeEnum.valueOf(args.getString(ArgsEnum.TYPE.name()));
 		// Use the current time as the default values for the picker
 		final Calendar c = Calendar.getInstance();
 		int hour = c.get(Calendar.HOUR_OF_DAY);
 		int minute = c.get(Calendar.MINUTE);
+
+		if (args.containsKey(ArgsEnum.HOUR.name()) && args.containsKey(ArgsEnum.MINUTE.name())) {
+			hour = args.getInt(ArgsEnum.HOUR.name());
+			minute = args.getInt(ArgsEnum.MINUTE.name());
+		}
+
 		// Create a new instance of TimePickerDialog and return it
 		return new TimePickerDialog(getActivity(), this, hour, minute, DateFormat.is24HourFormat(getActivity()));
 	}
@@ -65,7 +82,12 @@ public class TimePickerFragmentDialog extends DialogFragment implements TimePick
 	 */
 	@Override
 	public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-		this.listener.onTimeSet(hourOfDay, minute);
-		CustomLog.d(this.getClass(), "selected time: " + hourOfDay + ":" + minute);
+		if (type == TypeEnum.FROM_TIME) {
+			this.listener.setSelectedFromTime(hourOfDay, minute);
+		} else if (type == TypeEnum.TO_TIME) {
+			this.listener.setSelectedToTime(hourOfDay, minute);
+		} else {
+			CustomLog.e(this.getClass(), "invalid type: " + type);
+		}
 	}
 }

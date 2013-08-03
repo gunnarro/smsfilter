@@ -1,7 +1,8 @@
 package com.gunnarro.android.smsfilter.listener;
 
-
 public interface TimePickerSelectedListener {
 
-    public void onTimeSet(int hourOfDay, int minute);
+	public void setSelectedFromTime(int hourOfDay, int minute);
+
+	public void setSelectedToTime(int hourOfDay, int minute);
 }

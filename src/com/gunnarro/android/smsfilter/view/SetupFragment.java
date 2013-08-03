@@ -21,29 +21,42 @@ import com.gunnarro.android.smsfilter.listener.TimePickerSelectedListener;
 import com.gunnarro.android.smsfilter.service.FilterService;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl;
 import com.gunnarro.android.smsfilter.service.impl.FilterServiceImpl.FilterTypeEnum;
+import com.gunnarro.android.smsfilter.utility.Utility;
+import com.gunnarro.android.smsfilter.view.TimePickerFragmentDialog.ArgsEnum;
 
 public class SetupFragment extends Fragment implements TimePickerSelectedListener {
 
 	private FilterService filterService;
 
 	/**
-	 * FIXME must be in the main activity
 	 * 
-	 * @param v
 	 */
-	public void showTimePickerDialog(View v) {
-		DialogFragment newFragment = new TimePickerFragmentDialog();
-		newFragment.show(getFragmentManager(), "showTimePickerDialog");
+	private void showTimePickerDialog(View v, TimePickerFragmentDialog.TypeEnum type, int hour, int minute) {
+		DialogFragment timePickerFragment = new TimePickerFragmentDialog();
+		Bundle agrsBundle = new Bundle();
+		agrsBundle.putString(ArgsEnum.TYPE.name(), type.name());
+		agrsBundle.putInt(ArgsEnum.HOUR.name(), hour);
+		agrsBundle.putInt(ArgsEnum.MINUTE.name(), minute);
+		timePickerFragment.setArguments(agrsBundle);
+		timePickerFragment.show(getFragmentManager(), "showTimePickerDialog");
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onTimeSet(int hourOfDay, int minute) {
+	public void setSelectedFromTime(int hourOfDay, int minute) {
 		CustomLog.d(this.getClass(), "selected time: " + hourOfDay + ":" + minute);
-		this.filterService.updateMsgFilterPeriodFromTime(formatTime(hourOfDay, minute));
-		this.filterService.updateMsgFilterPeriodToTime(formatTime(hourOfDay, minute));
+		this.filterService.updateMsgFilterPeriodFromTime(Utility.formatTime(hourOfDay, minute));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setSelectedToTime(int hourOfDay, int minute) {
+		CustomLog.d(this.getClass(), "selected time: " + hourOfDay + ":" + minute);
+		this.filterService.updateMsgFilterPeriodToTime(Utility.formatTime(hourOfDay, minute));
 	}
 
 	/**
@@ -59,7 +72,6 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 		return view;
 	}
 
-	// FIXME
 	private void init(final View view) {
 		FilterTypeEnum activeFilterType = filterService.getActiveFilterType();
 		if (activeFilterType == null) {
@@ -91,8 +103,6 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 		// Read and set correct status for the message filter period switch
 		Switch msgFilterPeridoSwitch = (Switch) view.findViewById(R.id.msg_filter_period_on_off_switch);
 		msgFilterPeridoSwitch.setChecked(filterService.isMsgFilterPeriodActivated());
-		updateMsgFilterTimePickerStatus(view, msgFilterPeridoSwitch.isChecked());
-
 		updateMsgFilterPeriod(view, msgFilterPeridoSwitch.isChecked());
 	}
 
@@ -146,16 +156,20 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 		view.findViewById(R.id.msg_filter_from_time_btn).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showTimePickerDialog(view);
+				// Note, send in this view, and not the v, which is a reference
+				// to the main view. Populate it with current from time.
+				String fromTime = filterService.getMsgFilterPeriodFromTime();
+				showTimePickerDialog(view, TimePickerFragmentDialog.TypeEnum.FROM_TIME, Utility.getHour(fromTime), Utility.getMinute(fromTime));
 			}
 		});
 
 		view.findViewById(R.id.msg_filter_to_time_btn).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// note, send in this view, and not the v, which is a reference
-				// to the main view.
-				showTimePickerDialog(view);
+				// Note, send in this view, and not the v, which is a reference
+				// to the main view. Populate it with current to time.
+				String toTime = filterService.getMsgFilterPeriodToTime();
+				showTimePickerDialog(view, TimePickerFragmentDialog.TypeEnum.TO_TIME, Utility.getHour(toTime), Utility.getMinute(toTime));
 			}
 		});
 	}
@@ -185,46 +199,16 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 
 	private void updateMsgFilterPeriod(View view, boolean isEnabled) {
 		TextView fromTime = (TextView) view.findViewById(R.id.msg_filter_from_time_value);
-		fromTime.setText(this.filterService.getMsgFilterPeriodFromHour());
+		fromTime.setText(this.filterService.getMsgFilterPeriodFromTime());
 		fromTime.setEnabled(isEnabled);
 
 		TextView toTime = (TextView) view.findViewById(R.id.msg_filter_to_time_value);
-		toTime.setText(this.filterService.getMsgFilterPeriodToHour());
+		toTime.setText(this.filterService.getMsgFilterPeriodToTime());
 		toTime.setEnabled(isEnabled);
 
 		ImageButton fromTimeBtn = (ImageButton) view.findViewById(R.id.msg_filter_from_time_btn);
 		fromTimeBtn.setEnabled(isEnabled);
 		ImageButton toTimeBtn = (ImageButton) view.findViewById(R.id.msg_filter_to_time_btn);
 		toTimeBtn.setEnabled(isEnabled);
-	}
-
-	private void updateMsgFilterTimePickerStatus(View view, boolean isEnabled) {
-		// TimePicker fromTimePicker = (TimePicker)
-		// view.findViewById(R.id.msg_filter_from_time);
-		// TimePicker toTimePicker = (TimePicker)
-		// view.findViewById(R.id.msg_filter_to_time);
-		// fromTimePicker.setEnabled(isEnabled);
-		// fromTimePicker.setIs24HourView(true);
-		// fromTimePicker.setCurrentHour(this.filterService.getMsgFilterPeriodFromHour());
-		// fromTimePicker.setCurrentMinute(0);
-		// toTimePicker.setEnabled(isEnabled);
-		// toTimePicker.setIs24HourView(true);
-		// toTimePicker.setCurrentHour(this.filterService.getMsgFilterPeriodToHour());
-		// toTimePicker.setCurrentMinute(0);
-	}
-
-	private static String formatTime(int hour, int minute) {
-		StringBuffer time = new StringBuffer();
-		time.append(padTime(hour)).append(":").append(padTime(minute));
-		return time.toString();
-	}
-
-	/** Add padding to numbers less than ten */
-	private static String padTime(int n) {
-		if (n >= 10) {
-			return String.valueOf(n);
-		} else {
-			return "0" + String.valueOf(n);
-		}
 	}
 }
