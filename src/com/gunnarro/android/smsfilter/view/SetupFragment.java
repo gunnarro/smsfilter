@@ -153,7 +153,7 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 			}
 		});
 
-		view.findViewById(R.id.msg_filter_from_time_btn).setOnClickListener(new OnClickListener() {
+		view.findViewById(R.id.msg_filter_from_time_value).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// Note, send in this view, and not the v, which is a reference
@@ -163,7 +163,7 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 			}
 		});
 
-		view.findViewById(R.id.msg_filter_to_time_btn).setOnClickListener(new OnClickListener() {
+		view.findViewById(R.id.msg_filter_to_time_value).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// Note, send in this view, and not the v, which is a reference
@@ -205,10 +205,5 @@ public class SetupFragment extends Fragment implements TimePickerSelectedListene
 		TextView toTime = (TextView) view.findViewById(R.id.msg_filter_to_time_value);
 		toTime.setText(this.filterService.getMsgFilterPeriodToTime());
 		toTime.setEnabled(isEnabled);
-
-		ImageButton fromTimeBtn = (ImageButton) view.findViewById(R.id.msg_filter_from_time_btn);
-		fromTimeBtn.setEnabled(isEnabled);
-		ImageButton toTimeBtn = (ImageButton) view.findViewById(R.id.msg_filter_to_time_btn);
-		toTimeBtn.setEnabled(isEnabled);
 	}
 }

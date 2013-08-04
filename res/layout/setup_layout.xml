@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <Switch
             android:id="@+id/msg_filter_on_off_switch"
@@ -28,7 +28,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <TextView
             android:id="@+id/info"
@@ -47,7 +47,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <RadioButton
             android:id="@+id/radio_contacts"
@@ -69,16 +69,10 @@
     </RadioGroup>
 
     <TableRow
-        android:id="@+id/tableRow1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-    </TableRow>
-
-    <TableRow
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <Switch
             android:id="@+id/msg_filter_period_on_off_switch"
@@ -96,7 +90,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <TextView
             android:id="@+id/msg_filter_from_time_lbl"
@@ -111,23 +105,18 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="2dip"
-            android:text="@string/na" />
-
-        <ImageButton
-            android:id="@+id/msg_filter_from_time_btn"
-            android:layout_weight="1"
-            android:contentDescription="@string/na"
+            android:background="@color/bg_default"
+            android:gravity="center_horizontal"
             android:onClick="showTimePickerDlg"
             android:padding="2dip"
-            android:src="@drawable/calendar" />
+            android:text="@string/na" />
     </TableRow>
 
     <TableRow
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:paddingLeft="5dip" >
+        android:padding="2dip" >
 
         <TextView
             android:id="@+id/msg_filter_to_time_lbl"
@@ -139,16 +128,11 @@
         <TextView
             android:id="@+id/msg_filter_to_time_value"
             android:layout_weight="1"
-            android:padding="2dip"
-            android:text="@string/na" />
-
-        <ImageButton
-            android:id="@+id/msg_filter_to_time_btn"
-            android:layout_weight="1"
-            android:contentDescription="@string/na"
+            android:background="@color/bg_default"
+            android:gravity="center_horizontal"
             android:onClick="showTimePickerDlg"
             android:padding="2dip"
-            android:src="@drawable/calendar" />
+            android:text="@string/na" />
     </TableRow>
 
 </TableLayout>
