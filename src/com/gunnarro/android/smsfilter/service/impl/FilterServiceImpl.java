@@ -1,10 +1,7 @@
 package com.gunnarro.android.smsfilter.service.impl;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -21,6 +18,7 @@ import com.gunnarro.android.smsfilter.domain.SMSLog;
 import com.gunnarro.android.smsfilter.repository.FilterRepository;
 import com.gunnarro.android.smsfilter.repository.impl.FilterRepositoryImpl;
 import com.gunnarro.android.smsfilter.service.FilterService;
+import com.gunnarro.android.smsfilter.utility.Utility;
 
 /**
  * Service class to store and read sms filter values and settings from the
@@ -70,19 +68,6 @@ public class FilterServiceImpl implements FilterService {
 		this.filterRepository.open();
 	}
 
-	public static String createSearch(String value) {
-		if (value == null || value.isEmpty()) {
-			return "";
-		}
-		String filter = "^" + value.replace("*", "") + ".*";
-		if (value.startsWith("+")) {
-			filter = "^\\" + value.replace("*", "") + ".*";
-		} else if (value.startsWith("hidden")) {
-			filter = "[0-9,+]{8,19}";
-		}
-		return filter;
-	}
-
 	/**
 	 * Method to search for a given value in a list.
 	 * 
@@ -95,7 +80,7 @@ public class FilterServiceImpl implements FilterService {
 	private Item searchList(String type, String value) {
 		List<Item> itemList = filterRepository.getItemList(type);
 		for (Item item : itemList) {
-			String filter = createSearch(item.getValue());
+			String filter = Utility.createSearch(item.getValue());
 			if (value.matches(filter)) {
 				CustomLog.i(FilterServiceImpl.class, "HIT value=" + value + ", filter=" + filter);
 				return item;
@@ -148,44 +133,7 @@ public class FilterServiceImpl implements FilterService {
 
 		// The time period is turned on, so we have the check if current time is
 		// in out outside of the selected time period.
-		String fromTime = filterRepository.getMsgFilterPeriodFromTime();
-		String toTime = filterRepository.getMsgFilterPeriodToTime();
-
-		return isInActiveTimePeriode(fromTime, toTime);
-	}
-
-	private static boolean isEmpty(String s) {
-		if (s == null || s.length() == 0) {
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean isInActiveTimePeriode(String fromTime, String toTime) {
-		if (isEmpty(fromTime) || isEmpty(toTime)) {
-			// time period not set, return true
-			return true;
-		}
-		Calendar currentTime = Calendar.getInstance();
-		Calendar fromTimeCal = Calendar.getInstance();
-		Calendar toTimeCal = Calendar.getInstance();
-		String pattern = "HH:mm";
-		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-		try {
-			Date to = sdf.parse(toTime);
-			Date from = sdf.parse(fromTime);
-			fromTimeCal.setTime(from);
-			toTimeCal.setTime(to);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		if ((currentTime.get(Calendar.HOUR_OF_DAY) > fromTimeCal.get(Calendar.HOUR_OF_DAY) && currentTime.get(Calendar.MINUTE) > fromTimeCal
-				.get(Calendar.MINUTE))
-				&& (currentTime.get(Calendar.HOUR_OF_DAY) < toTimeCal.get(Calendar.HOUR_OF_DAY) && currentTime.get(Calendar.MINUTE) < toTimeCal
-						.get(Calendar.MINUTE))) {
-			return true;
-		}
-		return false;
+		return Utility.isInActiveTimePeriode(filterRepository.getMsgFilterPeriodFromTime(), filterRepository.getMsgFilterPeriodToTime());
 	}
 
 	/**
