@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<team name="Knøtt 2003">
-    <version nr="0.1" releaseDate="26.11.2013" />
-    <name>Knøtt 2003</name>
+<team name="Knøtt 2003" version="0.1" releaseDate="26.11.2013">
     <club>Ullevål Idrettslag</club>
     <abbrivation>UiL</abbrivation>
-	
     <teamlead firstName="Gunnar" middleName="" lastName="Rønneberg"  mobile="+4745465500" email="gunnar_ronneberg@yahoo.no"/>
     <coach firstName="Gunnar" middleName="" lastName="Rønneberg"  mobile="+4745465500" email="gunnar_ronneberg@yahoo.no" />
     
@@ -58,12 +55,12 @@
     </matches>
     
     <cups>
-        <cup date="08.11.2013" startTime="09:00" name="Frigg Cup" venue="Frogner Stadion" />
+        <cup date="08.11.2013" startTime="09:00" deadlineDate="20.10.2013" signed="true" clubName="Frigg" cupName="Frigg Cup" venue="Frogner Stadion" />
     </cups>
     
     <trainings>
-        <traning date="25.11.2013" fromTime="16:30" toTime="18:00" team="Knøtt 2003" stadium="bergbanen" />
-        <traning date="27.11.2013" fromTime="16:30" toTime="18:00" team="Knøtt 2003" stadium="bergbanen" />
-        <traning date="30.11.2013" fromTime="14:30" toTime="16:00" team="Knøtt 2003" stadium="bergbanen" />
+        <traning date="25.11.2013" fromTime="16:30" toTime="18:00" place="Bergbanen" />
+        <traning date="27.11.2013" fromTime="16:30" toTime="18:00" place="Bergbanen" />
+        <traning date="30.11.2013" fromTime="14:30" toTime="16:00" place="Bergbanen" />
     </trainings>
   </team>
