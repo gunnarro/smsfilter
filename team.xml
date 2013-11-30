@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <team name="Knøtt 2003" version="0.1" releaseDate="26.11.2013">
-    <club>Ullevål Idrettslag</club>
-    <abbrivation>UiL</abbrivation>
+    <club name="Ullevål Idrettslag">
+    	<abbrivation>UiL</abbrivation>
+        <stadium>Bergbanen</stadium>
+        <address>Ullevål stadion, pb 4400, Oslo 0870</address>
+        <homepage>http://www.uil.no</homepage>
+    </club>
+    
     <teamlead firstName="Gunnar" middleName="" lastName="Rønneberg"  mobile="+4745465500" email="gunnar_ronneberg@yahoo.no"/>
     <coach firstName="Gunnar" middleName="" lastName="Rønneberg"  mobile="+4745465500" email="gunnar_ronneberg@yahoo.no" />
     
